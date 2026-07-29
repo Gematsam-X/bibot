@@ -1,0 +1,8 @@
+<input
+  type="text"
+  [(ngModel)]="msg"
+  placeholder="Scrivi un messaggio..."
+  (keydown.enter)="triggerSendMessage()"
+/>
+
+<button (click)="triggerSendMessage()">Invia</button>
