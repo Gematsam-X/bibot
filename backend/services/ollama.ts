@@ -20,6 +20,6 @@ export async function askOllama(message: string, res: any) {
   for await (const chunk of stream) {
     res.write(chunk.message.content);
   }
-
+  
   res.end();
 }

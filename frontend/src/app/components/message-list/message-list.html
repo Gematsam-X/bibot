@@ -1,13 +1,17 @@
-	@for (msg of msgs; track $index) {
-		<div
-			class="messaggio"
-			[class.user]="msg.role === 'user'"
-			[class.assistant]="msg.role === 'bibot'"
-		>
-			<strong>
-				{{ msg.role === 'user' ? 'Tu' : 'Bibot' }}
-			</strong>
+@for (msg of msgs; track $index) {
+  <div
+    class="message-row"
+    [class.user]="msg.role === 'user'"
+    [class.assistant]="msg.role === 'bibot'"
+  >
+    <div class="message-bubble">
+      <div class="message-author">
+        {{ msg.role === 'user' ? 'Tu' : 'Bibot' }}
+      </div>
 
-			<p>{{ msg.content }}</p>
-		</div>
-    }
+      <div class="message-content">
+        {{ msg.content }}
+      </div>
+    </div>
+  </div>
+}

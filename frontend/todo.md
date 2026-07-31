@@ -33,4 +33,4 @@
 
 ## Furthermore...
 
-- [ ] Add authentication and local saving of you chats
+- [ ] Add authentication and local saving of your chats
