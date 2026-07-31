@@ -8,5 +8,5 @@ import { Message } from '../chat/chat';
   styleUrl: './message-list.css',
 })
 export class MessageList {
-@Input() msgs: Message[] = [];
+  @Input() msgs: Message[] = [];
 }
