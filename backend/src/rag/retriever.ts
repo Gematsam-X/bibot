@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import * as lancedb from '@lancedb/lancedb';
 
-import { createEmbedding } from './embeddings.js';
+import { createEmbedding } from './embeddings.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
