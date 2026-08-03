@@ -25,6 +25,7 @@ interface DocumentChunk {
   fileHash: string;
   chunkIndex: number;
   length: number;
+  categories: string[];
   vector: number[];
 }
 
@@ -38,42 +39,26 @@ function calculateHash(content: string): string {
 // Pulisce il Markdown rimuovendo attributi dir="rtl", escape LaTeX inutili, separatori troppo aggressivi, spazi multipli e troppe righe vuote.
 
 function cleanMarkdown(text: string): string {
-  return text
-    // Rimuove attributi dir="rtl"
-    .replace(
-      /\[([^\]]+)\]\{dir="rtl"\}/g,
-      '$1'
-    )
+  return (
+    text
+      // Rimuove attributi dir="rtl"
+      .replace(/\[([^\]]+)\]\{dir="rtl"\}/g, "$1")
 
-    // Rimuove escape LaTeX inutili
-    .replace(
-      /\\\[/g,
-      ''
-    )
-    .replace(
-      /\\\]/g,
-      ''
-    )
+      // Rimuove escape LaTeX inutili
+      .replace(/\\\[/g, "")
+      .replace(/\\\]/g, "")
 
-    // Sistema separatori troppo aggressivi
-    .replace(
-      /^---$/gm,
-      ''
-    )
+      // Sistema separatori troppo aggressivi
+      .replace(/^---$/gm, "")
 
-    // Spazi multipli
-    .replace(
-      /[ \t]+/g,
-      ' '
-    )
+      // Spazi multipli
+      .replace(/[ \t]+/g, " ")
 
-    // Troppe righe vuote
-    .replace(
-      /\n{3,}/g,
-      '\n\n'
-    )
+      // Troppe righe vuote
+      .replace(/\n{3,}/g, "\n\n")
 
-    .trim();
+      .trim()
+  );
 }
 
 /**
@@ -188,6 +173,49 @@ async function deleteDocumentChunks(table: any, source: string) {
   await table.delete(`source = '${escapedSource}'`);
 }
 
+// Trova i documenti basandosi sul loro hash.
+
+async function findDocumentByHash(table: any, fileHash: string) {
+  const rows = await table
+    .query()
+    .where(`fileHash = '${fileHash}'`)
+    .select(["source", "fileHash"])
+    .toArray();
+
+  return rows.length > 0 ? rows[0] : null;
+}
+
+// Aggiorna la fonte di un documento e dei suoi chunk, nel caso in cui il file sia stato spostato o rinominato, ma il contenuto sia rimasto invariato.
+
+async function updateDocumentSource(
+  table: any,
+  oldSource: string,
+  newSource: string,
+) {
+  const escapedOld = oldSource.replace(/'/g, "''");
+
+  const rows = await table.query().where(`source = '${escapedOld}'`).toArray();
+
+  for (const row of rows) {
+    await table.delete(`id = '${row.id}'`);
+
+    await table.add([
+      {
+        ...row,
+        source: newSource,
+        text: row.text.replace(`Fonte: ${oldSource}`, `Fonte: ${newSource}`),
+      },
+    ]);
+  }
+}
+
+// Ottieni la categoria del documento basandoti sul percorso relativo del file rispetto alla cartella knowledge/.
+function getCategories(source: string): string[] {
+  const parts = source.split("/");
+
+  return parts.slice(0, -1);
+}
+
 /**
  * Crea chunk ed embedding per un documento.
  */
@@ -214,6 +242,7 @@ async function createDocumentChunks(
       text: chunkText,
       source,
       fileHash,
+      categories: getCategories(source),
       chunkIndex: i,
       length: chunkText.length,
       vector,
@@ -405,11 +434,18 @@ async function ingest() {
 
       updated++;
     } else {
-      /*
-       * ---------------------------------------------------
-       * NUOVO
-       * ---------------------------------------------------
-       */
+      const movedDocument = await findDocumentByHash(table, hash);
+
+      if (movedDocument) {
+        console.log(`📦 Spostato: ${movedDocument.source} → ${source}`);
+
+        await updateDocumentSource(table, movedDocument.source, source);
+
+        skipped++;
+
+        continue;
+      }
+
       console.log(`🆕 Nuovo: ${source}`);
 
       added++;
