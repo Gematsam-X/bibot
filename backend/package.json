@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.ts",
-    "dev": "tsx --watch src/server.ts"
+    "dev": "tsx --watch src/server.ts",
+    "ingest": "tsx src/rag/ingest.ts"
   },
   "keywords": [],
   "author": "Gionatan Venturi - Gematsam X",
   "license": "ISC",
   "dependencies": {
+    "@lancedb/lancedb": "^0.33.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
