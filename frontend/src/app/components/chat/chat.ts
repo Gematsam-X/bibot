@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat';
@@ -14,6 +14,7 @@ export interface Message {
   selector: 'app-chat',
   imports: [FormsModule, MessageList, MessageInput],
   templateUrl: './chat.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat.css',
 })
 export class Chat {
