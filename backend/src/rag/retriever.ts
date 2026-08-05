@@ -1,18 +1,18 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-import * as lancedb from '@lancedb/lancedb';
+import * as lancedb from "@lancedb/lancedb";
 
-import { createEmbedding } from './embeddings.ts';
+import { createEmbedding } from "./embeddings.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Directory del database LanceDB
-const DB_DIR = path.resolve(__dirname, '../../data/lancedb');
+const DB_DIR = path.resolve(__dirname, "../../data/lancedb");
 
 // Nome della tabella contenente i chunk
-const TABLE_NAME = 'documents';
+const TABLE_NAME = "documents";
 
 // Numero di risultati restituiti di default
 const DEFAULT_LIMIT = 5;
@@ -42,6 +42,13 @@ async function getTable(): Promise<lancedb.Table> {
       const db = await lancedb.connect(DB_DIR);
       return db.openTable(TABLE_NAME);
     })();
+
+    try {
+      await tablePromise;
+    } catch (error) {
+      tablePromise = null;
+      throw error;
+    }
   }
 
   return tablePromise;
@@ -49,11 +56,9 @@ async function getTable(): Promise<lancedb.Table> {
 
 export async function retrieveRelevantChunks(
   question: string,
-  limit: number = DEFAULT_LIMIT
+  limit: number = DEFAULT_LIMIT,
 ): Promise<RetrievedChunk[]> {
-
   try {
-
     // Calcola l'embedding della domanda
     const embedding = await createEmbedding(question);
 
@@ -61,27 +66,21 @@ export async function retrieveRelevantChunks(
     const table = await getTable();
 
     // Esegue la ricerca vettoriale
-    const results = await table
+    const results = (await table
       .search(embedding)
       .limit(limit)
-      .toArray() as LanceChunkRow[];
+      .toArray()) as LanceChunkRow[];
 
     // Converte il risultato nel formato usato dall'applicazione
-    return results.map(row => ({
+    return results.map((row) => ({
       text: row.text,
       source: row.source,
       chunkIndex: row.chunkIndex,
-      score: row._distance
+      score: row._distance,
     }));
-
   } catch (error) {
-
-    console.error(
-      'Errore durante il recupero dei chunk:',
-      error
-    );
+    console.error("Errore durante il recupero dei chunk:", error);
 
     throw error;
-
   }
 }
