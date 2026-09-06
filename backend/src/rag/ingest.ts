@@ -14,8 +14,8 @@ const DB_DIR = path.join(__dirname, "../../data/lancedb");
 
 const TABLE_NAME = "documents";
 
-const CHUNK_SIZE = 400;
-const CHUNK_OVERLAP = 10;
+const CHUNK_SIZE = 550;
+const CHUNK_OVERLAP = 150;
 
 interface DocumentChunk {
   [key: string]: unknown;
@@ -24,6 +24,8 @@ interface DocumentChunk {
   source: string;
   fileHash: string;
   chunkIndex: number;
+  title?: string;
+  keywords?: string[];
   length: number;
   categories: string[];
   vector: number[];
@@ -147,6 +149,11 @@ async function getMarkdownFiles(
   return files;
 }
 
+// Ottieni il titolo del documento basandoti sul nome del file.
+function getTitle(source: string): string {
+  return path.basename(source, ".md");
+}
+
 /**
  * Restituisce il percorso relativo del file
  * rispetto alla cartella knowledge/.
@@ -216,6 +223,18 @@ function getCategories(source: string): string[] {
   return parts.slice(0, -1);
 }
 
+// Estrai le parole chiave
+
+function extractKeywords(text: string): string[] {
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-zàèéìòù0-9 ]/gi, "")
+    .split(/\s+/)
+    .filter((w) => w.length > 5);
+
+  return [...new Set(words)].slice(0, 10);
+}
+
 /**
  * Crea chunk ed embedding per un documento.
  */
@@ -232,6 +251,7 @@ async function createDocumentChunks(
 
   for (let i = 0; i < chunks.length; i++) {
     console.log(`   🧠 Embedding ${i + 1}/${chunks.length}`);
+    const title = getTitle(source);
 
     const chunkText = `Fonte: ${source}\n\n${chunks[i]}`;
 
@@ -242,6 +262,8 @@ async function createDocumentChunks(
       text: chunkText,
       source,
       fileHash,
+      title,
+      keywords: extractKeywords(chunks[i]),
       categories: getCategories(source),
       chunkIndex: i,
       length: chunkText.length,
@@ -392,7 +414,8 @@ async function ingest() {
   for (const file of files) {
     const source = getSourcePath(file);
 
-    const content = await fs.readFile(file, "utf8");
+    let content = await fs.readFile(file, "utf8");
+    content = cleanMarkdown(content);
 
     /*
      * Ignoriamo documenti vuoti.

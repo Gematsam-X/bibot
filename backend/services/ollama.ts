@@ -23,7 +23,7 @@ export async function askOllama(message: string, res: any) {
 
     const ragStart = Date.now();
 
-    const chunks = await retrieveRelevantChunks(message, 3);
+    const chunks = await retrieveRelevantChunks(message, 8);
 
     console.log(`✅ Chunk recuperati: ${chunks.length}`);
 
@@ -34,7 +34,7 @@ export async function askOllama(message: string, res: any) {
       console.log("📄 Fonte:", chunk.source);
       console.log("🔢 Indice:", chunk.chunkIndex);
       console.log("📊 Score:", chunk.score);
-      console.log("📝 Anteprima:", chunk.text.slice(0, 200));
+      console.log("📝 Il chunk dice:", chunk.text);
     });
 
     // ==========================
