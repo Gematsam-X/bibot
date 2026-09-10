@@ -118,12 +118,6 @@ function splitIntoChunks(text: string): string[] {
 /**
  * Cerca ricorsivamente tutti i file .md
  * presenti nella cartella knowledge/.
- *
- * Esempio:
- *
- * knowledge/linux.md
- * knowledge/tecnologia/nodejs.md
- * knowledge/scuola/storia/roma.md
  */
 async function getMarkdownFiles(
   directory: string = KNOWLEDGE_DIR,
@@ -157,14 +151,6 @@ function getTitle(source: string): string {
 /**
  * Restituisce il percorso relativo del file
  * rispetto alla cartella knowledge/.
- *
- * Esempio:
- *
- * /.../knowledge/linux/nodejs.md
- *
- * diventa:
- *
- * linux/nodejs.md
  */
 function getSourcePath(filePath: string): string {
   return path.relative(KNOWLEDGE_DIR, filePath).split(path.sep).join("/");

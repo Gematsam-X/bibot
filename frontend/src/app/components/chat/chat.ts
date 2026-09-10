@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
 import { inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat';
@@ -17,14 +17,27 @@ export interface Message {
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat.css',
 })
-export class Chat {
+export class Chat implements OnInit {
   private chatService = inject(ChatService);
 
   msg = '';
+  availableDocs: string[] = [];
 
   msgs: Message[] = [];
 
-  async sendMessage(message: string) {
+  ngOnInit() {
+    this.getAvailableDocs();
+  }
+
+  async getAvailableDocs() {
+    try {
+      this.availableDocs = await this.chatService.getAvailableDocs();
+    } catch (e) {
+      console.error('Errore:', e);
+    }
+  }
+
+  async sendMessage(message: string, categories: string[]) {
     const text = message.trim();
 
     if (!text) return;
@@ -47,7 +60,7 @@ export class Chat {
 
     try {
       // Riceve i chunk uno alla volta
-      for await (const chunk of this.chatService.sendMessage(text)) {
+      for await (const chunk of this.chatService.sendMessage(text, categories)) {
         botMessage.content += chunk;
       }
     } catch (e) {

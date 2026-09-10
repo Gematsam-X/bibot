@@ -17,6 +17,14 @@ const TABLE_NAME = "documents";
 // Numero di risultati restituiti di default
 const DEFAULT_LIMIT = 8;
 
+// Candidati semantici da valutare prima del reranking ibrido.
+// Un insieme più ampio permette di recuperare fatti specifici che il solo
+// embedding potrebbe inizialmente classificare oltre i primi risultati.
+const MIN_CANDIDATE_LIMIT = 50;
+const CANDIDATE_MULTIPLIER = 8;
+const MIN_LEXICAL_TERM_LENGTH = 7;
+const LEXICAL_FALLBACK_BOOST = 0.08;
+
 export interface RetrievedChunk {
   text: string;
   source: string;
@@ -30,7 +38,12 @@ interface LanceChunkRow {
   source: string;
   chunkIndex: number;
   keywords?: unknown;
+  categories?: unknown;
   _distance: number;
+}
+
+interface CandidateChunkRow extends LanceChunkRow {
+  lexicalMatch?: boolean;
 }
 
 // Promise condivisa della tabella.
@@ -38,9 +51,36 @@ interface LanceChunkRow {
 let tablePromise: Promise<lancedb.Table> | null = null;
 
 const QUESTION_STOP_WORDS = new Set([
-  "a", "al", "alla", "che", "chi", "con", "da", "dei", "del", "della",
-  "di", "dove", "e", "era", "erano", "gli", "i", "il", "in", "la",
-  "le", "lo", "non", "o", "per", "quale", "quali", "sono", "su", "un",
+  "a",
+  "al",
+  "alla",
+  "che",
+  "chi",
+  "con",
+  "da",
+  "dei",
+  "del",
+  "della",
+  "di",
+  "dove",
+  "e",
+  "era",
+  "erano",
+  "gli",
+  "i",
+  "il",
+  "in",
+  "la",
+  "le",
+  "lo",
+  "non",
+  "o",
+  "per",
+  "quale",
+  "quali",
+  "sono",
+  "su",
+  "un",
   "una",
 ]);
 
@@ -72,24 +112,75 @@ function normalizeForMatching(text: string): string {
 }
 
 function getSearchTerms(text: string): string[] {
-  return [...new Set(
-    normalizeForMatching(text)
-      .split(/\s+/)
-      .filter((word) => word.length >= 3 && !QUESTION_STOP_WORDS.has(word)),
-  )];
+  return [
+    ...new Set(
+      normalizeForMatching(text)
+        .split(/\s+/)
+        .filter((word) => word.length >= 3 && !QUESTION_STOP_WORDS.has(word)),
+    ),
+  ];
 }
 
-function calculateKeywordBoost(
+function buildCategoryFilter(
+  categories: string[] | string,
+): string | undefined {
+  const categoryList = Array.isArray(categories) ? categories : [categories];
+
+  const normalizedCategories = categoryList
+    .map((category) => category.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (normalizedCategories.length === 0) {
+    return undefined;
+  }
+
+  const escapedCategories = normalizedCategories.map(
+    (category) => `'${category.replace(/'/g, "''")}'`,
+  );
+
+  return `array_has_any(categories, [${escapedCategories.join(", ")}])`;
+}
+
+function getLexicalFallbackTerm(question: string): string | undefined {
+  return getSearchTerms(question)
+    .filter((term) => term.length >= MIN_LEXICAL_TERM_LENGTH)
+    .sort((first, second) => second.length - first.length)[0];
+}
+
+async function retrieveLexicalCandidates(
+  table: lancedb.Table,
   question: string,
-  keywords: unknown,
-): number {
+  limit: number,
+  categoryFilter?: string,
+): Promise<LanceChunkRow[]> {
+  const term = getLexicalFallbackTerm(question);
+
+  if (!term) {
+    return [];
+  }
+
+  // `term` contiene solo lettere e numeri dopo la normalizzazione.
+  const whereClause = categoryFilter
+    ? `LOWER(text) LIKE '%${term}%' AND ${categoryFilter}`
+    : `LOWER(text) LIKE '%${term}%'`;
+
+  return (await table
+    .query()
+    .where(whereClause)
+    .select(["text", "source", "chunkIndex", "keywords", "categories"])
+    .limit(limit)
+    .toArray()) as LanceChunkRow[];
+}
+
+function calculateKeywordBoost(question: string, keywords: unknown): number {
   const questionWords = getSearchTerms(question);
 
   // LanceDB può restituire le colonne lista come un oggetto iterabile,
   // non necessariamente come un Array JavaScript.
   const keywordList = Array.isArray(keywords)
     ? keywords
-    : keywords && typeof (keywords as Iterable<unknown>)[Symbol.iterator] === "function"
+    : keywords &&
+        typeof (keywords as Iterable<unknown>)[Symbol.iterator] === "function"
       ? Array.from(keywords as Iterable<unknown>)
       : [];
 
@@ -137,6 +228,7 @@ function calculateLexicalBoost(question: string, text: string): number {
 
 export async function retrieveRelevantChunks(
   question: string,
+  selectedCategories: string[],
   limit: number = DEFAULT_LIMIT,
 ): Promise<RetrievedChunk[]> {
   try {
@@ -146,20 +238,79 @@ export async function retrieveRelevantChunks(
     // Ottiene la tabella già aperta
     const table = await getTable();
 
-    // Esegue la ricerca vettoriale
-    const results = (await table
-      .search(embedding)
-      .limit(limit)
-      .toArray()) as LanceChunkRow[];
+    // Recupera più candidati del risultato finale, poi li riordina usando
+    // segnali semantici e lessicali prima di selezionare i migliori `limit`.
+    const candidateLimit = Math.max(
+      limit * CANDIDATE_MULTIPLIER,
+      MIN_CANDIDATE_LIMIT,
+    );
+    console.log("selectedCategories:", selectedCategories);
+    console.log(
+      "selectedCategories:",
+      JSON.stringify(selectedCategories, null, 2),
+    );
+    const categoryFilter = buildCategoryFilter(selectedCategories);
+    console.log("Categorie selezionate:", selectedCategories);
+    console.log("Filtro LanceDB:", categoryFilter);
+
+    const semanticQuery = table.search(embedding);
+
+    if (categoryFilter) {
+      semanticQuery.where(categoryFilter);
+    }
+
+    const [semanticResults, lexicalResults] = await Promise.all([
+      semanticQuery.limit(candidateLimit).toArray() as Promise<LanceChunkRow[]>,
+
+      retrieveLexicalCandidates(
+        table,
+        question,
+        candidateLimit,
+        categoryFilter,
+      ),
+    ]);
+
+    const bestSemanticDistance = semanticResults.reduce(
+      (distance, row) => Math.min(distance, row._distance),
+      Number.POSITIVE_INFINITY,
+    );
+    const lexicalBaseDistance = Number.isFinite(bestSemanticDistance)
+      ? bestSemanticDistance + 0.04
+      : 1;
+
+    const candidates = new Map<string, CandidateChunkRow>();
+
+    for (const row of semanticResults) {
+      candidates.set(`${row.source}:${row.chunkIndex}`, { ...row });
+    }
+
+    for (const row of lexicalResults) {
+      const key = `${row.source}:${row.chunkIndex}`;
+      const semanticRow = candidates.get(key);
+
+      if (semanticRow) {
+        semanticRow.lexicalMatch = true;
+      } else {
+        candidates.set(key, {
+          ...row,
+          // Una corrispondenza lessicale diretta su un termine distintivo
+          // deve competere con i migliori candidati semantici, non essere
+          // relegata in fondo solo perché assente dal risultato vettoriale.
+          _distance: lexicalBaseDistance,
+          lexicalMatch: true,
+        });
+      }
+    }
 
     // Converte il risultato nel formato usato dall'applicazione
-    const rankedResults = results
+    const rankedResults = [...candidates.values()]
       .map((row) => ({
         ...row,
         finalScore:
-          row._distance
-          - calculateKeywordBoost(question, row.keywords)
-          - calculateLexicalBoost(question, row.text),
+          row._distance -
+          calculateKeywordBoost(question, row.keywords) -
+          calculateLexicalBoost(question, row.text) -
+          (row.lexicalMatch ? LEXICAL_FALLBACK_BOOST : 0),
       }))
       .sort((a, b) => a.finalScore - b.finalScore)
       .slice(0, limit);

@@ -1,4 +1,12 @@
-import { Component, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -8,13 +16,185 @@ import { FormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './message-input.css',
 })
-export class MessageInput {
+export class MessageInput implements OnChanges {
+  private readonly storageKey = 'bibot-selected-documents';
+
   msg = '';
 
-  @Output() sendMessage = new EventEmitter<string>();
+  useTheseDocs: string[] = [];
 
-  triggerSendMessage() {
-    this.sendMessage.emit(this.msg);
+  @Input() availableDocs: string[] = [];
+
+  @Output() sendMessage = new EventEmitter<{
+    message: string;
+    categories: string[];
+  }>();
+
+  docsOpen = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      changes['availableDocs'] &&
+      this.availableDocs.length > 0 &&
+      this.useTheseDocs.length === 0
+    ) {
+      this.loadDocumentPreferences();
+    }
+  }
+
+  triggerSendMessage(): void {
+    this.sendMessage.emit({
+      message: this.msg,
+      categories: this.getSelectedDocs(),
+    });
+
     this.msg = '';
+  }
+
+  getSelectedDocs(): string[] {
+    return [...this.useTheseDocs];
+  }
+
+  selectAllDocs(): void {
+    this.useTheseDocs = [...this.availableDocs];
+
+    this.saveDocumentPreferences();
+  }
+
+  toggleDoc(doc: string): void {
+    if (doc === 'publications') {
+      this.togglePublications();
+      return;
+    }
+
+    const isSelected = this.useTheseDocs.includes(doc);
+
+    if (isSelected) {
+      // Do not allow the last selected document to be removed.
+      if (this.useTheseDocs.length === 1) {
+        return;
+      }
+
+      let newSelection = this.useTheseDocs.filter((category) => category !== doc);
+
+      // Removing a publication subcategory means that
+      // publications is no longer fully selected.
+      if (doc !== 'bible') {
+        newSelection = newSelection.filter((category) => category !== 'publications');
+      }
+
+      // If removing the subcategory also removed the last
+      // remaining document, restore the removed document.
+      if (newSelection.length === 0) {
+        return;
+      }
+
+      this.useTheseDocs = newSelection;
+
+      this.saveDocumentPreferences();
+
+      return;
+    }
+
+    // Add the selected document.
+    let newSelection = [...this.useTheseDocs, doc];
+
+    // If all publication subcategories are selected,
+    // automatically select the publications parent.
+    if (doc !== 'bible' && this.areAllPublicationCategoriesSelected(newSelection)) {
+      newSelection = [
+        ...newSelection.filter((category) => category !== 'publications'),
+        'publications',
+      ];
+    }
+
+    this.useTheseDocs = newSelection;
+
+    this.saveDocumentPreferences();
+  }
+
+  isPublicationsLocked(): boolean {
+    return this.useTheseDocs.includes('publications') && !this.useTheseDocs.includes('bible');
+  }
+
+  private togglePublications(): void {
+    const publicationsSelected = this.useTheseDocs.includes('publications');
+
+    if (publicationsSelected) {
+      // Publications is the only selected document group.
+      // Do not allow the selection to become empty.
+      if (this.isPublicationsLocked()) {
+        return;
+      }
+
+      this.useTheseDocs = this.useTheseDocs.filter((category) => category === 'bible');
+
+      this.saveDocumentPreferences();
+
+      return;
+    }
+
+    // Selecting Publications selects the parent
+    // and all publication subcategories.
+    this.useTheseDocs = [
+      ...this.useTheseDocs.filter((category) => category === 'bible'),
+      'publications',
+      ...this.getPublicationCategories(),
+    ];
+
+    this.saveDocumentPreferences();
+  }
+
+  private getPublicationCategories(): string[] {
+    return this.availableDocs.filter(
+      (category) => category !== 'bible' && category !== 'publications',
+    );
+  }
+
+  private areAllPublicationCategoriesSelected(selection: string[]): boolean {
+    const publicationCategories = this.getPublicationCategories();
+
+    return (
+      publicationCategories.length > 0 &&
+      publicationCategories.every((category) => selection.includes(category))
+    );
+  }
+
+  private loadDocumentPreferences(): void {
+    const savedPreferences = localStorage.getItem(this.storageKey);
+
+    if (savedPreferences) {
+      try {
+        const savedCategories: unknown = JSON.parse(savedPreferences);
+
+        if (Array.isArray(savedCategories)) {
+          const validCategories = savedCategories.filter(
+            (category): category is string =>
+              typeof category === 'string' && this.availableDocs.includes(category),
+          );
+
+          if (validCategories.length > 0) {
+            this.useTheseDocs = validCategories;
+            return;
+          }
+        }
+      } catch {
+        // Ignore invalid localStorage data.
+      }
+    }
+
+    // First launch: select every available document.
+    this.useTheseDocs = [...this.availableDocs];
+
+    this.saveDocumentPreferences();
+  }
+
+  private saveDocumentPreferences(): void {
+    // Never save an empty selection.
+    if (this.useTheseDocs.length === 0) {
+      return;
+    }
+
+    localStorage.setItem(this.storageKey, JSON.stringify(this.useTheseDocs));
   }
 }

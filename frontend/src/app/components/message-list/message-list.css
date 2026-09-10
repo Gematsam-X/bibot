@@ -8,14 +8,21 @@
   align-items: center;
 
   overflow-y: auto;
+
+  font-family: var(--font-family);
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 .message-row {
   display: flex;
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  box-sizing: border-box;
   max-width: var(--chat-max-width);
+
+  padding: var(--spacing-sm) var(--spacing-lg);
+
+  box-sizing: border-box;
 
   animation: message-in var(--transition-slow) var(--ease-standard);
 }
@@ -29,23 +36,30 @@
 }
 
 .message-bubble {
-  max-width: min(var(--message-max-width), 80%);
+  position: relative;
+
+  max-width: min(var(--message-max-width), 78%);
 
   padding: var(--spacing-md) var(--spacing-lg);
 
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 
   color: var(--color-text-primary);
   background: var(--color-assistant-bubble);
 
-  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 
   transition:
-    transform var(--transition-normal) var(--ease-standard),
+    background-color var(--transition-normal) var(--ease-standard),
+    border-color var(--transition-normal) var(--ease-standard),
     box-shadow var(--transition-normal) var(--ease-standard),
-    background-color var(--transition-normal) var(--ease-standard);
+    transform var(--transition-normal) var(--ease-standard);
 }
+
+/* ─────────────────────────────
+   USER MESSAGE
+   ───────────────────────────── */
 
 .message-row.user .message-bubble {
   background: var(--color-user-bubble);
@@ -53,13 +67,36 @@
   border-color: transparent;
 
   border-bottom-right-radius: var(--radius-sm);
+
+  box-shadow: var(--shadow-sm);
 }
 
+.message-row.user .message-author {
+  color: var(--color-text-primary);
+}
+
+/* ─────────────────────────────
+   ASSISTANT MESSAGE
+   ───────────────────────────── */
+
 .message-row.assistant .message-bubble {
+  background: var(--color-assistant-bubble);
+
   border-bottom-left-radius: var(--radius-sm);
 }
 
+.message-row.assistant .message-author {
+  color: var(--color-accent);
+}
+
+/* ─────────────────────────────
+   AUTHOR
+   ───────────────────────────── */
+
 .message-author {
+  display: flex;
+  align-items: center;
+
   margin-bottom: var(--spacing-xs);
 
   color: var(--color-text-secondary);
@@ -71,19 +108,44 @@
   letter-spacing: 0.02em;
 }
 
+/* Small accent indicator for Bibot */
+.message-row.assistant .message-author::before {
+  content: "";
+
+  width: 6px;
+  height: 6px;
+
+  margin-right: var(--spacing-xs);
+
+  border-radius: var(--radius-pill);
+
+  background: var(--color-accent);
+}
+
+/* ─────────────────────────────
+   CONTENT
+   ───────────────────────────── */
+
 .message-content {
   color: var(--color-text-primary);
 
   font-family: var(--font-family);
   font-size: var(--font-size-md);
-  line-height: 1.55;
+  line-height: 1.6;
 
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
+/* ─────────────────────────────
+   HOVER
+   ───────────────────────────── */
+
 .message-bubble:hover {
   transform: translateY(-1px);
+
+  border-color: var(--color-border);
+
   box-shadow: var(--shadow-md);
 }
 
@@ -91,17 +153,29 @@
   background: var(--color-surface-hover);
 }
 
+.message-row.assistant .message-bubble:hover {
+  background: var(--color-surface);
+}
+
+/* ─────────────────────────────
+   ANIMATION
+   ───────────────────────────── */
+
 @keyframes message-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
+
+/* ─────────────────────────────
+   MOBILE
+   ───────────────────────────── */
 
 @media (max-width: 600px) {
   .message-row {
@@ -110,10 +184,22 @@
 
   .message-bubble {
     max-width: 88%;
+
     padding: var(--spacing-sm) var(--spacing-md);
+
+    border-radius: var(--radius-md);
+  }
+
+  .message-row.user .message-bubble {
+    border-bottom-right-radius: var(--radius-sm);
+  }
+
+  .message-row.assistant .message-bubble {
+    border-bottom-left-radius: var(--radius-sm);
   }
 
   .message-content {
     font-size: var(--font-size-sm);
+    line-height: 1.55;
   }
 }

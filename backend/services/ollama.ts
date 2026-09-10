@@ -5,7 +5,11 @@ const ollama = new Ollama({
   host: "http://localhost:11434",
 });
 
-export async function askOllama(message: string, res: any) {
+export async function askOllama(
+  message: string,
+  categories: string[],
+  res: any,
+) {
   const startTime = Date.now();
 
   console.log("\n==============================");
@@ -23,7 +27,7 @@ export async function askOllama(message: string, res: any) {
 
     const ragStart = Date.now();
 
-    const chunks = await retrieveRelevantChunks(message, 8);
+    const chunks = await retrieveRelevantChunks(message, categories, 8);
 
     console.log(`✅ Chunk recuperati: ${chunks.length}`);
 
@@ -72,18 +76,19 @@ export async function askOllama(message: string, res: any) {
         {
           role: "system",
           content: `Sei Bibot, un assistente pensato per aiutare i Testimoni di Geova a trovare informazioni.
-Rispondi usando solo il contesto fornito. Se manca la risposta, dillo chiaramente, dicendo che non hai abbastanza informazioni per rispondere.`,
+          Includi sempre riferimenti biblici e fonti dal contesto quando possibile.
+          Nel caso di una riposta più lunga, includi una sintesi alla fine della resposta.
+          Rispondi usando solo il contesto fornito. Non inventare informazioni o fonti.
+          Se non trovi la risposta nel contesto, dillo chiaramente.`,
         },
 
         {
           role: "user",
           content: `Contesto dai documenti:
+          ${context}
 
-${context}
-
-Domanda dell'utente:
-
-${message}`,
+          Domanda dell'utente:
+          ${message}`,
         },
       ],
 

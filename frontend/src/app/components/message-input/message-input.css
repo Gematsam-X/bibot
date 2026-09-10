@@ -10,9 +10,15 @@
 
   width: 100%;
   padding: var(--spacing-sm);
+
+  box-sizing: border-box;
 }
 
-input {
+/* ─────────────────────────────
+   MESSAGE INPUT
+   ───────────────────────────── */
+
+input[type='text'] {
   flex: 1;
 
   min-width: 0;
@@ -31,39 +37,242 @@ input {
   font-family: var(--font-family);
   font-size: var(--font-size-md);
 
+  box-sizing: border-box;
+
   transition:
     border-color var(--transition-normal) var(--ease-standard),
     background-color var(--transition-normal) var(--ease-standard),
     box-shadow var(--transition-normal) var(--ease-standard);
 }
 
-input::placeholder {
+input[type='text']::placeholder {
   color: var(--color-text-muted);
 }
 
-input:hover {
+input[type='text']:hover {
   background: var(--color-surface-hover);
 }
 
-input:focus {
+input[type='text']:focus {
   border-color: var(--color-accent);
 
   background: var(--color-surface);
 
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 15%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 
-button {
+/* ─────────────────────────────
+   DOCUMENT DROPDOWN
+   ───────────────────────────── */
+
+.docs-dropdown {
+  position: relative;
+
+  flex-shrink: 0;
+}
+
+.docs-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+
+  height: 52px;
+
+  padding: 0 var(--spacing-md);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-normal) var(--ease-standard),
+    border-color var(--transition-normal) var(--ease-standard),
+    color var(--transition-normal) var(--ease-standard),
+    transform var(--transition-fast) var(--ease-standard);
+}
+
+.docs-button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+
+  border-color: var(--color-border);
+}
+
+.docs-button:active {
+  transform: scale(0.97);
+}
+
+.docs-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.docs-arrow {
+  display: inline-flex;
+
+  font-size: var(--font-size-sm);
+
+  transition:
+    transform var(--transition-normal) var(--ease-standard),
+    color var(--transition-normal) var(--ease-standard);
+}
+
+.docs-arrow.open {
+  transform: rotate(180deg);
+
+  color: var(--color-accent);
+}
+
+/* ─────────────────────────────
+   DOCUMENT MENU
+   ───────────────────────────── */
+
+.docs-menu {
+  position: absolute;
+
+  right: 0;
+  bottom: calc(100% + var(--spacing-sm));
+
+  min-width: 210px;
+  max-width: 280px;
+  max-height: 280px;
+
+  padding: var(--spacing-xs);
+
+  box-sizing: border-box;
+
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-lg);
+
+  overflow-y: auto;
+
+  z-index: var(--z-overlay);
+
+  animation: menu-in var(--transition-fast) var(--ease-standard);
+}
+
+/* ─────────────────────────────
+   DOCUMENT OPTION
+   ───────────────────────────── */
+
+.doc-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  padding: var(--spacing-sm) var(--spacing-md);
+
+  border-radius: var(--radius-md);
+
+  color: var(--color-text-secondary);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+
+  cursor: pointer;
+
+  user-select: none;
+
+  transition:
+    background-color var(--transition-fast) var(--ease-standard),
+    color var(--transition-fast) var(--ease-standard);
+}
+
+.doc-option:hover {
+  background: var(--color-surface-hover);
+
+  color: var(--color-text-primary);
+}
+
+/* ─────────────────────────────
+   CHECKBOX
+   ───────────────────────────── */
+
+.doc-option input[type='checkbox'] {
+  appearance: none;
+
+  flex-shrink: 0;
+
+  width: 17px;
+  height: 17px;
+
+  margin: 0;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+
+  background: var(--color-background);
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast) var(--ease-standard),
+    border-color var(--transition-fast) var(--ease-standard),
+    box-shadow var(--transition-fast) var(--ease-standard);
+}
+
+.doc-option input[type='checkbox']:hover {
+  border-color: var(--color-accent);
+}
+
+.doc-option input[type='checkbox']:checked {
+  border-color: var(--color-accent);
+
+  background: var(--color-accent);
+
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.doc-option input[type='checkbox']:checked::after {
+  content: '';
+
+  display: block;
+
+  width: 5px;
+  height: 9px;
+
+  margin: 2px auto 0;
+
+  border-right: 2px solid var(--color-text-primary);
+  border-bottom: 2px solid var(--color-text-primary);
+
+  transform: rotate(45deg);
+}
+
+/* ─────────────────────────────
+   SEND BUTTON
+   ───────────────────────────── */
+
+.input-container > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   flex-shrink: 0;
 
   height: 52px;
+
   padding: 0 var(--spacing-xl);
 
   border: none;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
 
   background: var(--color-accent);
-  color: white;
+  color: var(--color-text-primary);
 
   font-family: var(--font-family);
   font-size: var(--font-size-md);
@@ -71,37 +280,204 @@ button {
 
   cursor: pointer;
 
+  box-shadow: var(--shadow-sm);
+
   transition:
-    transform var(--transition-fast) var(--ease-standard),
     background-color var(--transition-normal) var(--ease-standard),
-    box-shadow var(--transition-normal) var(--ease-standard);
+    box-shadow var(--transition-normal) var(--ease-standard),
+    transform var(--transition-fast) var(--ease-standard);
 }
 
-button:hover {
+.input-container > button:hover {
   background: var(--color-accent-hover);
 
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 
   transform: translateY(-1px);
 }
 
-button:active {
-  transform: translateY(0) scale(0.97);
+.input-container > button:active {
+  transform: scale(0.97);
 }
 
-button:focus-visible {
+.input-container > button:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
-@media (max-width: 600px) {
-  input {
-    height: 48px;
-    padding: 0 var(--spacing-md);
+/* ─────────────────────────────
+   ANIMATIONS
+   ───────────────────────────── */
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
   }
 
-  button {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─────────────────────────────
+   DOCUMENT HIERARCHY
+   ───────────────────────────── */
+
+.doc-parent {
+  margin-bottom: var(--spacing-xs);
+
+  color: var(--color-text-primary);
+
+  font-weight: 600;
+}
+
+.doc-parent span {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.doc-parent span::after {
+  content: 'tutte';
+
+  padding: 2px 6px;
+
+  border-radius: var(--radius-pill);
+
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+/* Publication subcategories */
+
+.doc-child {
+  position: relative;
+
+  margin-left: var(--spacing-md);
+  padding-left: var(--spacing-lg);
+
+  color: var(--color-text-secondary);
+}
+
+.doc-child::before {
+  content: '';
+
+  position: absolute;
+
+  left: 8px;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  background: var(--color-border);
+}
+
+.doc-child:hover {
+  color: var(--color-text-primary);
+}
+
+/* Small visual indicator showing that this is a child */
+
+.doc-child span::before {
+  content: '└';
+
+  margin-right: var(--spacing-xs);
+
+  color: var(--color-text-muted);
+}
+
+/* Bible is standalone */
+
+.doc-standalone {
+  margin-top: var(--spacing-xs);
+
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
+
+  padding-top: var(--spacing-md);
+}
+
+.select-all-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+
+  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+
+  border: none;
+  border-radius: var(--radius-md);
+
+  background: transparent;
+  color: var(--color-accent);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast) var(--ease-standard),
+    color var(--transition-fast) var(--ease-standard);
+}
+
+.select-all-button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+/* ─────────────────────────────
+   MOBILE
+   ───────────────────────────── */
+
+@media (max-width: 600px) {
+  .input-container {
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+  }
+
+  input[type='text'] {
     height: 48px;
+
+    padding: 0 var(--spacing-md);
+
+    border-radius: var(--radius-lg);
+
+    font-size: var(--font-size-sm);
+  }
+
+  .docs-button {
+    height: 48px;
+
+    padding: 0 var(--spacing-sm);
+
+    border-radius: var(--radius-md);
+
+    font-size: var(--font-size-xs);
+  }
+
+  .docs-menu {
+    min-width: 190px;
+
+    max-width: calc(100vw - var(--spacing-lg));
+  }
+
+  .input-container > button {
+    height: 48px;
+
     padding: 0 var(--spacing-lg);
+
+    border-radius: var(--radius-md);
+
+    font-size: var(--font-size-sm);
   }
 }

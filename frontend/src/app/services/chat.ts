@@ -14,13 +14,13 @@ export class ChatService {
 
   private apiUrl = 'http://localhost:3000/api';
 
-  async *sendMessage(message: string): AsyncGenerator<string> {
+  async *sendMessage(message: string, categories: string[]): AsyncGenerator<string> {
     const response = await fetch(`${this.apiUrl}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, categories }),
     });
 
     if (!response.ok) {
@@ -47,5 +47,22 @@ export class ChatService {
     } finally {
       reader.releaseLock();
     }
+  }
+
+  async getAvailableDocs(): Promise<string[]> {
+    const response = await fetch(`${this.apiUrl}/available-docs`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Errore HTTP: ${response.status}`);
+    }
+
+    const docs: string[] = await response.json();
+
+    return docs;
   }
 }

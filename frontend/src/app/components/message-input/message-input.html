@@ -6,7 +6,63 @@
     (keydown.enter)="triggerSendMessage()"
   />
 
-  <button (click)="triggerSendMessage()">
-    Invia
-  </button>
+  <div class="docs-dropdown">
+    <button type="button" class="docs-button" (click)="docsOpen = !docsOpen">
+      <span>Documenti</span>
+
+      <span class="docs-arrow" [class.open]="docsOpen"> ▾ </span>
+    </button>
+
+    @if (docsOpen) {
+      <div class="docs-menu">
+        <button type="button" class="select-all-button" (click)="selectAllDocs()">
+          Seleziona tutto
+        </button>
+        @if (availableDocs.includes('publications')) {
+          <label class="doc-option doc-parent">
+            <input
+              type="checkbox"
+              [checked]="useTheseDocs.includes('publications')"
+              [disabled]="isPublicationsLocked()"
+              (change)="toggleDoc('publications')"
+            />
+
+            <span>Publications</span>
+          </label>
+
+          <div class="doc-children">
+            @for (doc of availableDocs; track doc) {
+              @if (doc !== 'publications' && doc !== 'bible') {
+                <label class="doc-option doc-child">
+                  <input
+                    type="checkbox"
+                    [checked]="useTheseDocs.includes(doc)"
+                    [disabled]="useTheseDocs.length === 1 && useTheseDocs.includes(doc)"
+                    (change)="toggleDoc(doc)"
+                  />
+
+                  <span>{{ doc }}</span>
+                </label>
+              }
+            }
+          </div>
+        }
+
+        @if (availableDocs.includes('bible')) {
+          <label class="doc-option doc-standalone">
+            <input
+              type="checkbox"
+              [checked]="useTheseDocs.includes('bible')"
+              [disabled]="useTheseDocs.length === 1 && useTheseDocs.includes('bible')"
+              (change)="toggleDoc('bible')"
+            />
+
+            <span>Bible</span>
+          </label>
+        }
+      </div>
+    }
+  </div>
+
+  <button (click)="triggerSendMessage()">Invia</button>
 </div>
