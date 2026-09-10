@@ -142,9 +142,9 @@ input[type='text']:focus {
   right: 0;
   bottom: calc(100% + var(--spacing-sm));
 
-  min-width: 210px;
-  max-width: 280px;
-  max-height: 280px;
+  min-width: 350px;
+  max-width: 500px;
+  max-height: 500px;
 
   padding: var(--spacing-xs);
 
@@ -382,16 +382,6 @@ input[type='text']:focus {
   color: var(--color-text-primary);
 }
 
-/* Small visual indicator showing that this is a child */
-
-.doc-child span::before {
-  content: '└';
-
-  margin-right: var(--spacing-xs);
-
-  color: var(--color-text-muted);
-}
-
 /* Bible is standalone */
 
 .doc-standalone {
@@ -401,6 +391,8 @@ input[type='text']:focus {
   border-radius: 0;
 
   padding-top: var(--spacing-md);
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
 .select-all-button {

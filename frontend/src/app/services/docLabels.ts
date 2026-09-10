@@ -14,6 +14,8 @@ export class DocLabelsService {
     publications: 'Pubblicazioni',
     pers: 'Perspicacia',
     cour: 'Coraggio',
+    evorcr: 'Evoluzione o creazione',
+    life4ever: 'Puoi vivere felice per sempre',
   };
 
   getLabel(doc: string): string {

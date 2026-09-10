@@ -18,6 +18,18 @@
         <button type="button" class="select-all-button" (click)="selectAllDocs()">
           Seleziona tutto
         </button>
+        @if (availableDocs.includes('bible')) {
+          <label class="doc-option doc-standalone">
+            <input
+              type="checkbox"
+              [checked]="useTheseDocs.includes('bible')"
+              [disabled]="useTheseDocs.length === 1 && useTheseDocs.includes('bible')"
+              (change)="toggleDoc('bible')"
+            />
+
+            <span>{{ getDocLabel('bible') }}</span>
+          </label>
+        }
         @if (availableDocs.includes('publications')) {
           <label class="doc-option doc-parent">
             <input
@@ -27,7 +39,7 @@
               (change)="toggleDoc('publications')"
             />
 
-            <span>{{ getDocLabel("publications") }}</span>
+            <span>{{ getDocLabel('publications') }}</span>
           </label>
 
           <div class="doc-children">
@@ -46,19 +58,6 @@
               }
             }
           </div>
-        }
-
-        @if (availableDocs.includes('bible')) {
-          <label class="doc-option doc-standalone">
-            <input
-              type="checkbox"
-              [checked]="useTheseDocs.includes('bible')"
-              [disabled]="useTheseDocs.length === 1 && useTheseDocs.includes('bible')"
-              (change)="toggleDoc('bible')"
-            />
-
-            <span>{{ getDocLabel('bible') }}</span>
-          </label>
         }
       </div>
     }
