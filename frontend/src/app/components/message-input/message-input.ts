@@ -6,7 +6,9 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
+  inject,
 } from '@angular/core';
+import { DocLabelsService } from '../../services/docLabels';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -18,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class MessageInput implements OnChanges {
   private readonly storageKey = 'bibot-selected-documents';
+  docLabelsService = inject(DocLabelsService);
 
   msg = '';
 
@@ -49,6 +52,10 @@ export class MessageInput implements OnChanges {
     });
 
     this.msg = '';
+  }
+
+  getDocLabel(doc: string): string {
+    return this.docLabelsService.getLabel(doc);
   }
 
   getSelectedDocs(): string[] {

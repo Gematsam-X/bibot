@@ -27,7 +27,7 @@
               (change)="toggleDoc('publications')"
             />
 
-            <span>Publications</span>
+            <span>{{ getDocLabel("publications") }}</span>
           </label>
 
           <div class="doc-children">
@@ -41,7 +41,7 @@
                     (change)="toggleDoc(doc)"
                   />
 
-                  <span>{{ doc }}</span>
+                  <span>{{ getDocLabel(doc) }}</span>
                 </label>
               }
             }
@@ -57,7 +57,7 @@
               (change)="toggleDoc('bible')"
             />
 
-            <span>Bible</span>
+            <span>{{ getDocLabel('bible') }}</span>
           </label>
         }
       </div>
