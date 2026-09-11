@@ -1,59 +1,160 @@
-# Frontend
+# Bibot
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.7.
+Bibot è un chatbot locale progettato per aiutare i Testimoni di Geova e altri nella ricerca di informazioni utilizzando la Bibbia e le pubblicazioni presenti nella propria base documentale.
 
-## Development server
+Il progetto utilizza un modello linguistico locale tramite Ollama e un sistema RAG per recuperare le informazioni pertinenti prima della generazione della risposta.
 
-To start a local development server, run:
+## Tecnologie
 
-```bash
-ng serve
+- Angular
+- Node.js
+- TypeScript
+- Ollama
+- LanceDB
+
+## Modello
+
+Bibot utilizza il modello:
+
+```text
+qwen3:30b-a3b-instruct-2507-q4_K_M
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Il modello viene eseguito tramite Ollama.
 
-## Code scaffolding
+Ollama viene utilizzato localmente all'indirizzo:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```text
+http://localhost:11434
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## RAG
 
-```bash
-ng generate --help
+Bibot utilizza LanceDB per la ricerca dei contenuti documentali.
+
+Il database LanceDB si trova in:
+
+```text
+./data/lancedb
 ```
 
-## Building
+La tabella utilizzata è:
 
-To build the project run:
-
-```bash
-ng build
+```text
+documents
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Il sistema recupera i contenuti pertinenti alla domanda dell'utente e li utilizza per costruire il contesto fornito al modello.
 
-## Running unit tests
+Attualmente il sistema recupera 64 chunk, li sottopone a reranking e utilizza gli 8 risultati finali per la generazione della risposta.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Documenti
 
-```bash
-ng test
+I documenti utilizzati dal RAG sono organizzati nelle categorie disponibili al sistema.
+
+La categoria `bible` è separata dalle pubblicazioni.
+
+Le pubblicazioni comprendono le relative sottocategorie, tra cui `cour` e `pers`.
+
+È possibile combinare le categorie, ad esempio utilizzando contemporaneamente la Bibbia e le pubblicazioni.
+
+## Generazione delle risposte
+
+Il modello viene istruito a utilizzare esclusivamente i documenti forniti dal sistema RAG.
+
+Bibot è configurato per:
+
+- includere riferimenti biblici quando possibile;
+- non inventare informazioni o fonti;
+- non utilizzare conoscenze proprie per completare informazioni mancanti;
+- indicare quando i documenti forniti non contengono informazioni sufficienti per rispondere.
+
+## Streaming
+
+La risposta di Bibot viene trasmessa progressivamente al frontend.
+
+Il backend invia eventi JSON separati da newline.
+
+Gli eventi possono rappresentare:
+
+```json
+{"type":"status","status":"retrieving"}
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+```json
+{"type":"status","status":"loading_model"}
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+```json
+{"type":"status","status":"generating"}
+```
 
-## Additional Resources
+oppure contenere una parte della risposta:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```json
+{"type":"content","content":"Testo della risposta"}
+```
+
+Il frontend utilizza questi eventi per aggiornare l'interfaccia durante l'elaborazione della richiesta.
+
+## Stato dell'elaborazione
+
+Durante una richiesta Bibot può mostrare le diverse fasi dell'elaborazione:
+
+```text
+Cerco nei documenti...
+        ↓
+Carico il modello...
+        ↓
+Genero la risposta...
+        ↓
+Risposta in streaming
+```
+
+Il controllo dello stato del modello viene effettuato tramite Ollama.
+
+## Frontend
+
+Il frontend è sviluppato con Angular e utilizza componenti standalone.
+
+La chat gestisce:
+
+- messaggi dell'utente;
+- messaggi di Bibot;
+- stato di caricamento;
+- stato delle varie fasi della richiesta;
+- risposta generata progressivamente.
+
+## Backend
+
+Il backend è sviluppato in TypeScript e utilizza Ollama per la generazione delle risposte.
+
+Il backend gestisce il processo:
+
+```text
+Domanda dell'utente
+        ↓
+Ricerca RAG
+        ↓
+Reranking
+        ↓
+Selezione dei documenti
+        ↓
+Creazione del contesto
+        ↓
+Ollama
+        ↓
+Streaming della risposta
+```
+
+## Struttura del progetto
+
+Il progetto contiene il frontend Angular, il backend e i dati utilizzati dal sistema RAG.
+
+Il database LanceDB utilizzato dal RAG si trova in:
+
+```text
+data/lancedb
+```
+
+La struttura precisa delle altre directory non viene descritta qui per evitare di documentare percorsi non verificati.

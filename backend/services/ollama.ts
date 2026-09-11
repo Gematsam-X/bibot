@@ -5,6 +5,26 @@ const ollama = new Ollama({
   host: "http://localhost:11434",
 });
 
+const model = "qwen3:30b-a3b-instruct-2507-q4_K_M";
+
+function sendStatus(res: any, status: string) {
+  res.write(
+    JSON.stringify({
+      type: "status",
+      status,
+    }) + "\n",
+  );
+}
+
+function sendContent(res: any, content: string) {
+  res.write(
+    JSON.stringify({
+      type: "content",
+      content,
+    }) + "\n",
+  );
+}
+
 export async function askOllama(
   message: string,
   categories: string[],
@@ -24,6 +44,8 @@ export async function askOllama(
     // ==========================
 
     console.log("\n🔎 Avvio ricerca RAG...");
+
+    sendStatus(res, "retrieving");
 
     const ragStart = Date.now();
 
@@ -69,21 +91,19 @@ export async function askOllama(
 
     const ollamaStart = Date.now();
 
-    const stream = await ollama.chat({
-      model: "qwen3:30b-a3b-instruct-2507-q4_K_M",
+    const chatPromise = ollama.chat({
+      model: model,
 
       messages: [
         {
           role: "system",
           content: `Sei Bibot, un assistente pensato per aiutare i Testimoni di Geova a trovare informazioni.
-          Includi sempre riferimenti biblici e fonti dai documenti forniti quando possibile.
-          È vietato utilizzare in ogni caso dire le seguenti frasi: "Documento 1", "Fonte 5", "Documento 7" o qualsiasi altra etichetta creata dal modello per identificare una fonte.
-          NON devi usare numeri per identificare le fonti a meno che non siano chiaramente indicati nei documenti.
-          Gli identificativi delle fonti devono essere utilizzati solo se sono stati forniti esplicitamente dal sistema o dai documenti.
-          Nel caso di una riposta più lunga, includi una sintesi alla fine della risposta.
+          Includi riferimenti biblici quando possibile.
+          Nel caso di una riposta più lunga, includi UNA SOLA sintesi alla fine della risposta.
           Rispondi usando solo i documenti forniti. Non inventare informazioni o fonti.
+          Non dire in nessun caso "Documento 1", "Documento 7" o in generale "Documento" seguito da un numero.
           Se i documenti non contengono informazioni sufficienti per rispondere, non dedurre, completare o ricostruire la risposta usando conoscenze proprie.
-          Rispondi invece che non hai trovato informazioni sufficienti nei documenti forniti.`,
+          Rispondi invece che non sono state trovate informazioni sufficienti nei documenti forniti.`,
         },
 
         {
@@ -100,9 +120,37 @@ export async function askOllama(
       keep_alive: "30m",
       think: false,
       options: {
-        temperature: 0.3,
+        temperature: 0.34,
       },
     });
+
+    const running = await ollama.ps();
+
+    const modelLoaded = running.models.some(
+      (runningModel) => runningModel.name === model,
+    );
+
+    if (!modelLoaded) {
+      sendStatus(res, "loading_model");
+
+      while (true) {
+        const running = await ollama.ps();
+
+        const loaded = running.models.some(
+          (runningModel) => runningModel.name === model,
+        );
+
+        if (loaded) {
+          break;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+
+    sendStatus(res, "generating");
+
+    const stream = await chatPromise;
 
     console.log("✅ Stream Ollama iniziato");
 
@@ -126,7 +174,7 @@ export async function askOllama(
 
         console.log(`TOKEN ${tokenCount}:`, content);
 
-        res.write(content);
+        sendContent(res, content);
       }
     }
 
@@ -151,84 +199,3 @@ export async function askOllama(
     res.end();
   }
 }
-
-// export async function askOllama(message: string, res: any) {
-//   console.log("\n==============================");
-//   console.log("🤖 Richiesta diretta a Ollama");
-//   console.log("==============================");
-
-//   console.log("📩 Messaggio:");
-//   console.log(message);
-
-//   try {
-//     console.log("\n🧠 Invio a Qwen3-30B...");
-
-//     const startTime = Date.now();
-
-//     const stream = await ollama.chat({
-//       model: "qwen3:30b-a3b-instruct-2507-q4_K_M",
-
-//       messages: [
-//         {
-//           role: "system",
-//           content: `Sei Bibot, un assistente intelligente.
-// Rispondi in modo chiaro, utile e naturale.
-// `,
-//         },
-
-//         {
-//           role: "user",
-//           content: message,
-//         },
-//       ],
-
-//       stream: true,
-
-//       "keep_alive": "30m",
-
-//       think: false,
-//       options: {
-//         temperature: 0.3,
-//         num_predict: 2000,
-//       },
-//     });
-
-//     console.log("✅ Stream iniziato");
-
-//     console.log("⏱️ Tempo risposta iniziale:", Date.now() - startTime, "ms");
-
-//     let tokens = 0;
-
-//     for await (const chunk of stream) {
-//       const text = chunk.message.content;
-
-//       if (text) {
-//         tokens++;
-
-//         console.log(`TOKEN ${tokens}:`, text);
-
-//         res.write(text);
-//       }
-//     }
-
-//     console.log("\n✅ Completato");
-
-//     console.log("🔢 Token:", tokens);
-
-//     console.log("⏱️ Tempo totale:", Date.now() - startTime, "ms");
-
-//     res.end();
-//   } catch (error) {
-//     console.error("❌ Errore Ollama:");
-
-//     console.error(error);
-
-//     if (!res.headersSent) {
-//       res.status(500);
-//     }
-
-//     res.write("\nErrore durante la generazione.");
-
-//     res.end();
-//   }
-// }

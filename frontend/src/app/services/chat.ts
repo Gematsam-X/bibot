@@ -1,12 +1,25 @@
 import { Injectable } from '@angular/core';
 
+export type ChatEvent =
+  | {
+      type: 'status';
+      status: string;
+    }
+  | {
+      type: 'content';
+      content: string;
+    };
+
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
   private apiUrl = 'http://localhost:3000/api';
 
-  async *sendMessage(message: string, categories: string[]): AsyncGenerator<string> {
+  async *sendMessage(
+    message: string,
+    categories: string[],
+  ): AsyncGenerator<ChatEvent> {
     const response = await fetch(`${this.apiUrl}/chat`, {
       method: 'POST',
       headers: {
@@ -26,6 +39,8 @@ export class ChatService {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
 
+    let buffer = '';
+
     try {
       while (true) {
         const { value, done } = await reader.read();
@@ -34,7 +49,29 @@ export class ChatService {
           break;
         }
 
-        yield decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+
+        // L'ultima parte potrebbe essere un JSON incompleto.
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.trim()) {
+            continue;
+          }
+
+          const event: ChatEvent = JSON.parse(line);
+
+          yield event;
+        }
+      }
+
+      // Gestisce eventuali dati rimasti nel buffer alla fine dello stream.
+      if (buffer.trim()) {
+        const event: ChatEvent = JSON.parse(buffer);
+
+        yield event;
       }
     } finally {
       reader.releaseLock();

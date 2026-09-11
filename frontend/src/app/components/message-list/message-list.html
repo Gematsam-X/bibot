@@ -9,9 +9,16 @@
         {{ msg.role === 'user' ? 'Tu' : 'Bibot' }}
       </div>
 
-      <div class="message-content">
-        {{ msg.content }}
-      </div>
+      @if (msg.preLoading) {
+        <div class="loading-message">
+          <span class="loading-spinner"></span>
+          <span>{{ msg.content }}</span>
+        </div>
+      } @else {
+        <div class="message-content">
+          {{ msg.content }}
+        </div>
+      }
     </div>
   </div>
 }

@@ -8,6 +8,7 @@ import { MessageInput } from '../message-input/message-input';
 export interface Message {
   role: 'user' | 'bibot';
   content: string;
+  preLoading?: boolean;
 }
 
 @Component({
@@ -54,18 +55,47 @@ export class Chat implements OnInit {
     const botMessage: Message = {
       role: 'bibot',
       content: '',
+      preLoading: true,
     };
 
     this.msgs.push(botMessage);
 
     try {
-      // Riceve i chunk uno alla volta
-      for await (const chunk of this.chatService.sendMessage(text, categories)) {
-        botMessage.content += chunk;
+      // Riceve gli eventi uno alla volta
+      for await (const event of this.chatService.sendMessage(text, categories)) {
+        if (event.type === 'status') {
+          switch (event.status) {
+            case 'retrieving':
+              botMessage.content = 'Cercando nei documenti...';
+              break;
+
+            case 'loading_model':
+              botMessage.content = 'Caricando il modello...';
+              break;
+
+            case 'generating':
+              botMessage.content = 'Generando la risposta...';
+              break;
+          }
+
+          continue;
+        }
+
+        if (event.type === 'content') {
+          // Al primo contenuto reale, termina il caricamento e svuota il messaggio
+          if (botMessage.preLoading) {
+            botMessage.preLoading = false;
+            botMessage.content = '';
+          }
+
+          // Aggiunge il testo ricevuto allo stesso messaggio
+          botMessage.content += event.content;
+        }
       }
     } catch (e) {
       console.error('Errore:', e);
 
+      botMessage.preLoading = false;
       botMessage.content = 'Si è verificato un errore.';
     }
   }
