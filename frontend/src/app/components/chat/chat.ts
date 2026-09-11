@@ -1,9 +1,8 @@
-import { Component, ChangeDetectionStrategy, Input, OnInit } from '@angular/core';
-import { inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat';
-import { MessageList } from '../message-list/message-list';
 import { MessageInput } from '../message-input/message-input';
+import { MessageList } from '../message-list/message-list';
 
 export interface Message {
   role: 'user' | 'bibot';

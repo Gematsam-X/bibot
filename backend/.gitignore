@@ -4,6 +4,13 @@
 
 dist/
 
+# Packages
+
 node_modules/
 
+# LanceDB database
 data/
+
+# Speech to text files
+
+stt/

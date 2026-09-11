@@ -5,6 +5,17 @@
     placeholder="Scrivi un messaggio..."
     (keydown.enter)="triggerSendMessage()"
   />
+  <button type="button" (click)="toggleRecording()" [disabled]="sttService.isTranscribing()">
+    @if (sttService.isRecording()) {
+      <fa-icon [icon]="stopIcon"></fa-icon>
+    } @else if (sttService.isTranscribing()) {
+      <span class="transcribing-icon">
+        <fa-icon [icon]="micIcon"></fa-icon>
+      </span>
+    } @else {
+      <fa-icon [icon]="micIcon"></fa-icon>
+    }
+  </button>
 
   <div class="docs-dropdown">
     <button type="button" class="docs-button" (click)="docsOpen = !docsOpen">

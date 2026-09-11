@@ -1,33 +1,39 @@
 import {
-  Component,
-  Output,
-  EventEmitter,
   ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
   Input,
   OnChanges,
+  Output,
   SimpleChanges,
   inject,
 } from '@angular/core';
-import { DocLabelsService } from '../../services/docLabels';
 import { FormsModule } from '@angular/forms';
+import { DocLabelsService } from '../../services/docLabels';
+import { SttService } from '../../services/stt';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-message-input',
-  imports: [FormsModule],
+  imports: [FormsModule, FontAwesomeModule],
   templateUrl: './message-input.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './message-input.css',
 })
 export class MessageInput implements OnChanges {
   private readonly storageKey = 'bibot-selected-documents';
+
   docLabelsService = inject(DocLabelsService);
+  sttService = inject(SttService);
+
+  micIcon = faMicrophone;
+  stopIcon = faStop;
 
   msg = '';
-
   useTheseDocs: string[] = [];
 
   @Input() availableDocs: string[] = [];
-
   @Output() sendMessage = new EventEmitter<{
     message: string;
     categories: string[];
@@ -42,6 +48,52 @@ export class MessageInput implements OnChanges {
       this.useTheseDocs.length === 0
     ) {
       this.loadDocumentPreferences();
+    }
+  }
+
+  async toggleRecording(): Promise<void> {
+    if (this.sttService.isRecording()) {
+      await this.stopRecording();
+      return;
+    }
+
+    await this.startRecording();
+  }
+
+  private async startRecording(): Promise<void> {
+    try {
+      await this.sttService.startRecording();
+    } catch (error) {
+      console.error("Errore durante l'accesso al microfono:", error);
+    }
+  }
+
+  private isInvalidTranscription(text: string): boolean {
+    const trimmed = text.trim();
+
+    if (!trimmed) {
+      return true;
+    }
+
+    return (
+      (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+      (trimmed.startsWith('*') && trimmed.endsWith('*')) ||
+      (trimmed.startsWith('(') && trimmed.endsWith(')')) ||
+      (trimmed.startsWith('{') && trimmed.endsWith('}'))
+    );
+  }
+
+  private async stopRecording(): Promise<void> {
+    try {
+      let text = await this.sttService.stopRecording();
+
+      if (this.isInvalidTranscription(text)) {
+        this.msg = 'Non ti ho sentito, riprova';
+      }
+
+      this.msg = this.msg ? `${this.msg} ${text}` : text;
+    } catch (error) {
+      console.error('Errore durante la trascrizione:', error);
     }
   }
 
