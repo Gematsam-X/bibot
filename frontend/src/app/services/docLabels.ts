@@ -13,8 +13,8 @@ export class DocLabelsService {
     bible: 'Bibbia',
     publications: 'Pubblicazioni',
     pers: 'Perspicacia',
-    cour: 'Coraggio',
-    evorcr: 'Evoluzione o creazione',
+    cour: 'Cammina coraggiosamente con Dio',
+    evorcr: 'Evoluzione o creazione?',
     life4ever: 'Puoi vivere felice per sempre',
   };
 
