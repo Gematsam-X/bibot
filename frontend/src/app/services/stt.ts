@@ -86,7 +86,7 @@ export class SttService {
 
       const response = await firstValueFrom(
         this.http.post<{ text: string }>(
-          'http://localhost:3000/api/stt',
+          '/api/stt',
           formData,
         ),
       );
