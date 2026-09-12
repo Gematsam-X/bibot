@@ -86,7 +86,7 @@
           "options": {
             "proxyConfig": "proxy.conf.json",
             "allowedHosts": [
-              "profiles-aaron-sitting-thick.trycloudflare.com"
+              "*.trycloudflare.com"
             ]
           }
         },
