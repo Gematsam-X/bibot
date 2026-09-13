@@ -71,9 +71,9 @@ export async function askOllama(
 
     const context = chunks
       .map(
-        (chunk, index) =>
+        (chunk) =>
           `
-    [Documento ${index + 1}]
+    [Altre informazioni]
     Fonte: ${chunk.source}
 
     ${chunk.text}
@@ -101,7 +101,6 @@ export async function askOllama(
           Includi riferimenti biblici quando possibile.
           Nel caso di una riposta più lunga, includi UNA SOLA sintesi alla fine della risposta.
           Rispondi usando solo i documenti forniti. Non inventare informazioni o fonti.
-          Non dire in nessun caso "Documento 1", "Documento 7" o in generale "Documento" seguito da un numero.
           Se i documenti non contengono informazioni sufficienti per rispondere, non dedurre, completare o ricostruire la risposta usando conoscenze proprie.
           Rispondi invece che non sono state trovate informazioni sufficienti nei documenti forniti.`,
         },
