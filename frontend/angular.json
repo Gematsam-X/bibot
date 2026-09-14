@@ -84,10 +84,7 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "proxyConfig": "proxy.conf.json",
-            "allowedHosts": [
-              "*.trycloudflare.com"
-            ]
+            "proxyConfig": "proxy.conf.json"
           }
         },
         "extract-i18n": {

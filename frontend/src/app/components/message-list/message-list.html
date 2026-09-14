@@ -6,7 +6,7 @@
   >
     <div class="message-bubble">
       <div class="message-author">
-        {{ msg.role === 'user' ? 'Tu' : 'Bibot' }}
+        {{ msg.role === "user" ? "Tu" : "Bibot" }}
       </div>
 
       @if (msg.preLoading) {
@@ -15,9 +15,7 @@
           <span>{{ msg.content }}</span>
         </div>
       } @else {
-        <div class="message-content">
-          {{ msg.content }}
-        </div>
+        <div class="message-content" [innerHTML]="renderMarkdown(msg.content)"></div>
       }
     </div>
   </div>

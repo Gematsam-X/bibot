@@ -15,8 +15,13 @@
   scrollbar-color: var(--color-border) transparent;
 }
 
+/* ─────────────────────────────
+   MESSAGE ROW
+───────────────────────────── */
+
 .message-row {
   display: flex;
+
   width: 100%;
   max-width: var(--chat-max-width);
 
@@ -34,6 +39,10 @@
 .message-row.assistant {
   justify-content: flex-start;
 }
+
+/* ─────────────────────────────
+   MESSAGE BUBBLE
+───────────────────────────── */
 
 .message-bubble {
   position: relative;
@@ -108,8 +117,6 @@
   letter-spacing: 0.02em;
 }
 
-/* Small accent indicator for Bibot */
-
 .message-row.assistant .message-author::before {
   content: '';
 
@@ -124,7 +131,7 @@
 }
 
 /* ─────────────────────────────
-   CONTENT
+   MARKDOWN CONTENT
 ───────────────────────────── */
 
 .message-content {
@@ -134,8 +141,228 @@
   font-size: var(--font-size-md);
   line-height: 1.6;
 
-  white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* ─────────────────────────────
+   PARAGRAPHS
+───────────────────────────── */
+
+.message-content p {
+  margin: 0 0 var(--spacing-md);
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* ─────────────────────────────
+   HEADINGS
+───────────────────────────── */
+
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+
+  color: var(--color-text-primary);
+
+  line-height: 1.3;
+}
+
+.message-content h1 {
+  font-size: var(--font-size-xl);
+}
+
+.message-content h2 {
+  font-size: var(--font-size-lg);
+}
+
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+  font-size: var(--font-size-md);
+}
+
+.message-content > :first-child {
+  margin-top: 0;
+}
+
+/* ─────────────────────────────
+   LISTS
+───────────────────────────── */
+
+.message-content ul,
+.message-content ol {
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+
+  padding-left: var(--spacing-lg);
+}
+
+.message-content li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.message-content li:last-child {
+  margin-bottom: 0;
+}
+
+/* ─────────────────────────────
+   INLINE CODE
+───────────────────────────── */
+
+.message-content code {
+  padding: 0.15em 0.4em;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+
+  background: var(--color-surface-hover);
+
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+}
+
+/* ─────────────────────────────
+   CODE BLOCKS
+───────────────────────────── */
+
+.message-content pre {
+  margin: var(--spacing-md) 0;
+
+  padding: var(--spacing-md);
+
+  overflow-x: auto;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+
+  line-height: 1.5;
+}
+
+.message-content pre code {
+  display: block;
+
+  padding: 0;
+
+  overflow-x: visible;
+
+  border: 0;
+  border-radius: 0;
+
+  background: transparent;
+
+  font-family: var(--font-monospace);
+  font-size: var(--font-size-sm);
+}
+
+/* ─────────────────────────────
+   BLOCKQUOTES
+───────────────────────────── */
+
+.message-content blockquote {
+  margin: var(--spacing-md) 0;
+
+  padding: var(--spacing-sm) var(--spacing-md);
+
+  border-left: 3px solid var(--color-accent);
+
+  color: var(--color-text-secondary);
+  background: var(--color-surface-hover);
+}
+
+.message-content blockquote > :first-child {
+  margin-top: 0;
+}
+
+.message-content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* ─────────────────────────────
+   LINKS
+───────────────────────────── */
+
+.message-content a {
+  color: var(--color-accent);
+
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+
+  overflow-wrap: anywhere;
+}
+
+.message-content a:hover {
+  opacity: 0.8;
+}
+
+/* ─────────────────────────────
+   HORIZONTAL RULE
+───────────────────────────── */
+
+.message-content hr {
+  margin: var(--spacing-lg) 0;
+
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ─────────────────────────────
+   TABLES
+───────────────────────────── */
+
+.message-content table {
+  width: 100%;
+
+  margin: var(--spacing-md) 0;
+
+  border-collapse: collapse;
+
+  overflow: hidden;
+
+  border: 1px solid var(--color-border);
+}
+
+.message-content th,
+.message-content td {
+  padding: var(--spacing-sm);
+
+  border: 1px solid var(--color-border);
+
+  text-align: left;
+}
+
+.message-content th {
+  background: var(--color-surface-hover);
+
+  font-weight: 600;
+}
+
+.message-content tr:nth-child(even) {
+  background: var(--color-surface-hover);
+}
+
+/* ─────────────────────────────
+   IMAGES
+───────────────────────────── */
+
+.message-content img {
+  display: block;
+
+  max-width: 100%;
+  height: auto;
+
+  margin: var(--spacing-md) 0;
+
+  border-radius: var(--radius-md);
 }
 
 /* ─────────────────────────────
@@ -246,6 +473,24 @@
   .message-content {
     font-size: var(--font-size-sm);
     line-height: 1.55;
+  }
+
+  .message-content h1 {
+    font-size: var(--font-size-lg);
+  }
+
+  .message-content h2 {
+    font-size: var(--font-size-md);
+  }
+
+  .message-content pre {
+    padding: var(--spacing-sm);
+  }
+
+  .message-content table {
+    display: block;
+
+    overflow-x: auto;
   }
 
   .loading-message {
