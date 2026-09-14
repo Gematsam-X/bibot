@@ -32,12 +32,39 @@
   animation: message-in var(--transition-slow) var(--ease-standard);
 }
 
+/* ─────────────────────────────
+   MESSAGE CONTAINER
+───────────────────────────── */
+
+.message-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* USER */
+
 .message-row.user {
   justify-content: flex-end;
 }
 
+.message-row.user .message-container {
+  align-items: flex-end;
+
+  width: fit-content;
+  max-width: 78%;
+}
+
+/* ASSISTANT */
+
 .message-row.assistant {
   justify-content: flex-start;
+}
+
+.message-row.assistant .message-container {
+  align-items: flex-start;
+
+  width: 76%;
+  max-width: 76%;
 }
 
 /* ─────────────────────────────
@@ -47,9 +74,11 @@
 .message-bubble {
   position: relative;
 
-  max-width: min(var(--message-max-width), 78%);
+  width: 100%;
 
   padding: var(--spacing-md) var(--spacing-lg);
+
+  box-sizing: border-box;
 
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -67,10 +96,308 @@
 }
 
 /* ─────────────────────────────
+   MESSAGE ACTIONS
+───────────────────────────── */
+
+.message-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 2px;
+
+  min-height: 32px;
+
+  margin-top: var(--spacing-sm);
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity var(--transition-normal) var(--ease-standard);
+}
+
+.message-actions.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ─────────────────────────────
+SHARE OVERLAY
+───────────────────────────── */
+
+.share-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--spacing-lg);
+
+  box-sizing: border-box;
+
+  background: rgb(0 0 0 / 45%);
+
+  z-index: 1000;
+
+  animation: share-overlay-in 0.15s ease;
+}
+
+/* ─────────────────────────────
+SHARE MENU
+───────────────────────────── */
+
+.share-menu {
+  width: 100%;
+  max-width: 360px;
+
+  padding: var(--spacing-lg);
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  background: var(--color-surface);
+
+  box-shadow: var(--shadow-md);
+
+  animation: share-menu-in 0.18s var(--ease-standard);
+}
+
+/* ─────────────────────────────
+SHARE HEADER
+───────────────────────────── */
+
+.share-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: var(--spacing-lg);
+
+  color: var(--color-text-primary);
+
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.share-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: var(--radius-sm);
+
+  color: var(--color-text-secondary);
+  background: transparent;
+
+  font-size: 24px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-normal) var(--ease-standard),
+    background-color var(--transition-normal) var(--ease-standard);
+}
+
+.share-close:hover {
+  color: var(--color-text-primary);
+
+  background: var(--color-surface-hover);
+}
+
+/* ─────────────────────────────
+SHARE OPTIONS
+───────────────────────────── */
+
+.share-options {
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--spacing-xs);
+}
+
+.share-option {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+
+  padding: var(--spacing-sm) var(--spacing-md);
+
+  box-sizing: border-box;
+
+  border: 0;
+  border-radius: var(--radius-md);
+
+  color: var(--color-text-primary);
+  background: transparent;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-normal) var(--ease-standard),
+    transform var(--transition-normal) var(--ease-standard);
+}
+
+.share-option:hover {
+  background: var(--color-surface-hover);
+
+  transform: translateX(2px);
+}
+
+.share-option:active {
+  transform: scale(0.98);
+}
+
+.share-option fa-icon {
+  display: flex;
+
+  width: 22px;
+
+  margin-right: var(--spacing-sm);
+
+  color: var(--color-text-secondary);
+}
+
+.share-option-icon {
+  display: flex;
+
+  width: 22px;
+
+  margin-right: var(--spacing-sm);
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+}
+
+/* ─────────────────────────────
+SHARE ANIMATIONS
+───────────────────────────── */
+
+@keyframes share-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes share-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─────────────────────────────
+SHARE MOBILE
+───────────────────────────── */
+
+@media (max-width: 600px) {
+  .share-overlay {
+    align-items: flex-end;
+
+    padding: var(--spacing-sm);
+  }
+
+  .share-menu {
+    max-width: none;
+
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+  }
+}
+
+/* USER ACTIONS */
+
+.message-row.user .message-actions {
+  justify-content: flex-end;
+}
+
+/* ASSISTANT ACTIONS */
+
+.message-row.assistant .message-actions {
+  justify-content: flex-start;
+}
+
+/* ACTION BUTTON */
+
+.message-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: var(--radius-sm);
+
+  color: var(--color-text-secondary);
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-normal) var(--ease-standard),
+    background-color var(--transition-normal) var(--ease-standard),
+    transform var(--transition-normal) var(--ease-standard);
+}
+
+.message-actions button:hover {
+  color: var(--color-text-primary);
+
+  background: var(--color-surface-hover);
+
+  transform: translateY(-1px);
+}
+
+.message-actions button:active {
+  transform: scale(0.92);
+}
+
+/* FONT AWESOME */
+
+.message-actions button fa-icon {
+  display: flex;
+
+  font-size: 14px;
+}
+
+/* ─────────────────────────────
    USER MESSAGE
 ───────────────────────────── */
 
 .message-row.user .message-bubble {
+  width: fit-content;
+  max-width: 100%;
+
   background: var(--color-user-bubble);
 
   border-color: transparent;
@@ -89,6 +416,9 @@
 ───────────────────────────── */
 
 .message-row.assistant .message-bubble {
+  width: 100%;
+  max-width: 100%;
+
   background: var(--color-assistant-bubble);
 
   border-bottom-left-radius: var(--radius-sm);
@@ -118,7 +448,7 @@
 }
 
 .message-row.assistant .message-author::before {
-  content: '';
+  content: "";
 
   width: 6px;
   height: 6px;
@@ -410,7 +740,7 @@
 }
 
 /* ─────────────────────────────
-   HOVER
+   BUBBLE HOVER
 ───────────────────────────── */
 
 .message-bubble:hover {
@@ -436,11 +766,13 @@
 @keyframes message-in {
   from {
     opacity: 0;
+
     transform: translateY(8px);
   }
 
   to {
     opacity: 1;
+
     transform: translateY(0);
   }
 }
@@ -454,24 +786,44 @@
     padding: var(--spacing-xs) var(--spacing-md);
   }
 
-  .message-bubble {
+  /* USER */
+
+  .message-row.user .message-container {
     max-width: 88%;
+  }
+
+  .message-row.user .message-bubble {
+    width: fit-content;
+    max-width: 100%;
 
     padding: var(--spacing-sm) var(--spacing-md);
 
     border-radius: var(--radius-md);
-  }
-
-  .message-row.user .message-bubble {
     border-bottom-right-radius: var(--radius-sm);
   }
 
+  /* ASSISTANT */
+
+  .message-row.assistant .message-container {
+    width: 94%;
+    max-width: 94%;
+  }
+
   .message-row.assistant .message-bubble {
+    width: 100%;
+    max-width: 100%;
+
+    padding: var(--spacing-sm) var(--spacing-md);
+
+    border-radius: var(--radius-md);
     border-bottom-left-radius: var(--radius-sm);
   }
 
+  /* CONTENT */
+
   .message-content {
     font-size: var(--font-size-sm);
+
     line-height: 1.55;
   }
 
@@ -483,15 +835,21 @@
     font-size: var(--font-size-md);
   }
 
+  /* CODE */
+
   .message-content pre {
     padding: var(--spacing-sm);
   }
+
+  /* TABLE */
 
   .message-content table {
     display: block;
 
     overflow-x: auto;
   }
+
+  /* LOADING */
 
   .loading-message {
     font-size: var(--font-size-sm);
@@ -500,5 +858,20 @@
   .loading-spinner {
     width: 14px;
     height: 14px;
+  }
+
+  /* ACTIONS */
+
+  .message-actions {
+    min-height: 30px;
+  }
+
+  .message-actions button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .message-actions button fa-icon {
+    font-size: 13px;
   }
 }

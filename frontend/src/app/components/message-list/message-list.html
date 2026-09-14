@@ -4,19 +4,74 @@
     [class.user]="msg.role === 'user'"
     [class.assistant]="msg.role === 'bibot'"
   >
-    <div class="message-bubble">
-      <div class="message-author">
-        {{ msg.role === "user" ? "Tu" : "Bibot" }}
+    <div class="message-container">
+      <div class="message-bubble">
+        <div class="message-author">
+          {{ msg.role === "user" ? "Tu" : "Bibot" }}
+        </div>
+
+        @if (msg.preLoading) {
+          <div class="loading-message">
+            <span class="loading-spinner"></span>
+            <span>{{ msg.content }}</span>
+          </div>
+        } @else {
+          <div class="message-content" [innerHTML]="renderMarkdown(msg.content)"></div>
+        }
       </div>
 
-      @if (msg.preLoading) {
-        <div class="loading-message">
-          <span class="loading-spinner"></span>
-          <span>{{ msg.content }}</span>
+      @if (!msg.preLoading && (msg.role === "user" || msg.isComplete)) {
+        <div class="message-actions" [class.visible]="actionsVisible">
+          <button type="button" title="Copia" (click)="copyMessage(msg.content)">
+            <fa-icon [icon]="copyIcon"></fa-icon>
+          </button>
+
+          <button type="button" title="Condividi" (click)="shareMessage(msg.content)">
+            <fa-icon [icon]="shareIcon"></fa-icon>
+          </button>
+
+          @if (msg.role === "bibot") {
+            <button type="button" title="Rigenera" (click)="regenerateMessage(msg)">
+              <fa-icon [icon]="regenerateIcon"></fa-icon>
+            </button>
+          }
         </div>
-      } @else {
-        <div class="message-content" [innerHTML]="renderMarkdown(msg.content)"></div>
       }
+    </div>
+  </div>
+}
+@if (shareContent !== null) {
+  <div class="share-overlay" (click)="closeShareMenu()">
+    <div class="share-menu" (click)="$event.stopPropagation()">
+      <div class="share-menu-header">
+        <span>Condividi messaggio</span>
+
+        <button type="button" class="share-close" title="Chiudi" (click)="closeShareMenu()">
+          x
+        </button>
+      </div>
+
+      <div class="share-options">
+        <button type="button" class="share-option" (click)="shareCopy()">
+          <fa-icon [icon]="copyIcon"></fa-icon>
+          <span>Copia</span>
+        </button>
+
+        <button type="button" class="share-option" (click)="shareWhatsApp()">
+          <fa-icon [icon]="whatsappIcon"></fa-icon>
+          <span>WhatsApp</span>
+        </button>
+
+        <button type="button" class="share-option" (click)="shareTelegram()">
+          <fa-icon [icon]="telegramIcon"></fa-icon>
+          <span>Telegram</span>
+        </button>
+
+        <button type="button" class="share-option" (click)="shareEmail()">
+          <fa-icon [icon]="emailIcon"></fa-icon>
+          <span>Email</span>
+        </button>
+      </div>
     </div>
   </div>
 }

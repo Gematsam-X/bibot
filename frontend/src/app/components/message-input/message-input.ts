@@ -89,6 +89,7 @@ export class MessageInput implements OnChanges {
 
       if (this.isInvalidTranscription(text)) {
         this.msg = 'Non ti ho sentito, riprova';
+        return;
       }
 
       this.msg = this.msg ? `${this.msg} ${text}` : text;
