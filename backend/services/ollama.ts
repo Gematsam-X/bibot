@@ -74,7 +74,6 @@ export async function askOllama(
         (chunk) =>
           `
     [Altre informazioni]
-    Fonte: ${chunk.source}
 
     ${chunk.text}
     `,
@@ -108,7 +107,7 @@ export async function askOllama(
 
         {
           role: "user",
-          content: `Contesto dai documenti:
+          content: `Prendi le informazioni da questi documenti:
           ${context}
 
           Domanda dell'utente:

@@ -38,7 +38,8 @@ function calculateHash(content: string): string {
   return crypto.createHash("sha256").update(content, "utf8").digest("hex");
 }
 
-// Pulisce il Markdown rimuovendo attributi dir="rtl", escape LaTeX inutili, separatori troppo aggressivi, spazi multipli e troppe righe vuote.
+// Pulisce il Markdown rimuovendo attributi dir="rtl", escape LaTeX inutili,
+// separatori troppo aggressivi, spazi multipli e troppe righe vuote.
 
 function cleanMarkdown(text: string): string {
   return (
@@ -178,7 +179,9 @@ async function findDocumentByHash(table: any, fileHash: string) {
   return rows.length > 0 ? rows[0] : null;
 }
 
-// Aggiorna la fonte di un documento e dei suoi chunk, nel caso in cui il file sia stato spostato o rinominato, ma il contenuto sia rimasto invariato.
+// Aggiorna la fonte di un documento e dei suoi chunk,
+// nel caso in cui il file sia stato spostato o rinominato,
+// ma il contenuto sia rimasto invariato.
 
 async function updateDocumentSource(
   table: any,
@@ -187,7 +190,10 @@ async function updateDocumentSource(
 ) {
   const escapedOld = oldSource.replace(/'/g, "''");
 
-  const rows = await table.query().where(`source = '${escapedOld}'`).toArray();
+  const rows = await table
+    .query()
+    .where(`source = '${escapedOld}'`)
+    .toArray();
 
   for (const row of rows) {
     await table.delete(`id = '${row.id}'`);
@@ -196,7 +202,7 @@ async function updateDocumentSource(
       {
         ...row,
         source: newSource,
-        text: row.text.replace(`Fonte: ${oldSource}`, `Fonte: ${newSource}`),
+        text: row.text,
       },
     ]);
   }
@@ -237,9 +243,12 @@ async function createDocumentChunks(
 
   for (let i = 0; i < chunks.length; i++) {
     console.log(`   🧠 Embedding ${i + 1}/${chunks.length}`);
+
     const title = getTitle(source);
 
-    const chunkText = `Fonte: ${source}\n\n${chunks[i]}`;
+    // Il percorso viene mantenuto esclusivamente nel campo `source`.
+    // Non viene più inserito nel testo né nell'embedding.
+    const chunkText = chunks[i];
 
     const vector = await createEmbedding(chunkText);
 
@@ -249,7 +258,7 @@ async function createDocumentChunks(
       source,
       fileHash,
       title,
-      keywords: extractKeywords(chunks[i]),
+      keywords: extractKeywords(chunkText),
       categories: getCategories(source),
       chunkIndex: i,
       length: chunkText.length,
@@ -259,6 +268,7 @@ async function createDocumentChunks(
 
   return rows;
 }
+
 /**
  * Indicizzazione incrementale ricorsiva.
  */
@@ -401,6 +411,7 @@ async function ingest() {
     const source = getSourcePath(file);
 
     let content = await fs.readFile(file, "utf8");
+
     content = cleanMarkdown(content);
 
     /*
@@ -448,7 +459,11 @@ async function ingest() {
       if (movedDocument) {
         console.log(`📦 Spostato: ${movedDocument.source} → ${source}`);
 
-        await updateDocumentSource(table, movedDocument.source, source);
+        await updateDocumentSource(
+          table,
+          movedDocument.source,
+          source,
+        );
 
         skipped++;
 
@@ -463,7 +478,11 @@ async function ingest() {
     /*
      * Creiamo i nuovi chunk.
      */
-    const rows = await createDocumentChunks(source, content, hash);
+    const rows = await createDocumentChunks(
+      source,
+      content,
+      hash,
+    );
 
     /*
      * Li aggiungiamo al database.
