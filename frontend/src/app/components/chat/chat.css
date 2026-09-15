@@ -28,3 +28,23 @@ h1 {
   padding: 1rem;
   text-align: center;
 }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--color-header-background);
+  color: var(--color-header-text);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.header .logo {
+  width: 4rem;
+  height: 4rem;
+  margin-left: 0.5rem;
+}

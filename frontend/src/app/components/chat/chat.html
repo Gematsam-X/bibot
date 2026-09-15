@@ -1,5 +1,13 @@
-<h1>Bibot 🤖</h1>
-
+<div class="header">
+  <h1>Bibot</h1>
+  <img
+    src="/bibot.png"
+    alt="Bibot Logo"
+    class="logo"
+    draggable="false"
+    (dragstart)="$event.preventDefault()"
+  />
+</div>
 <app-message-list [msgs]="msgs" (regenerate)="regenerateMessage($event)"></app-message-list>
 <app-message-input
   (sendMessage)="sendMessage($event.message, $event.categories)"
