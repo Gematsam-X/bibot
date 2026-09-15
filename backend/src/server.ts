@@ -1,10 +1,10 @@
-import express, { json } from "express";
-import cors from "cors";
-import { askOllama } from "../services/ollama.ts";
 import * as lancedb from "@lancedb/lancedb";
+import cors from "cors";
+import express, { json } from "express";
 import multer from "multer";
-import path from "node:path";
 import { mkdir } from "node:fs/promises";
+import path from "node:path";
+import { askOllama } from "../services/ollama.ts";
 import { transcribeAudio } from "../services/stt.ts";
 
 const app = express();

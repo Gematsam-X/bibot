@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { mkdir, unlink } from 'node:fs/promises';
 import path from 'node:path';
-import { randomUUID } from 'node:crypto';
 
 const STT_DIR = path.resolve('./stt');
 const TEMP_DIR = path.join(STT_DIR, 'temp');

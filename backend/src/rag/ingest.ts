@@ -1,8 +1,8 @@
+import * as lancedb from "@lancedb/lancedb";
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
-import * as lancedb from "@lancedb/lancedb";
 
 import { createEmbedding } from "./embeddings.js";
 
