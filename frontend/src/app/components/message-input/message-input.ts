@@ -7,30 +7,30 @@ import {
   Output,
   SimpleChanges,
   inject,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { DocLabelsService } from '../../services/docLabels';
-import { SttService } from '../../services/stt';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faMicrophone, faStop } from '@fortawesome/free-solid-svg-icons';
-
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { DocLabelsService } from "../../services/docLabels";
+import { SttService } from "../../services/stt";
+import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { faMicrophone, faStop } from "@fortawesome/free-solid-svg-icons";
+import { ToastService } from "../../services/toast";
 @Component({
-  selector: 'app-message-input',
+  selector: "app-message-input",
   imports: [FormsModule, FontAwesomeModule],
-  templateUrl: './message-input.html',
+  templateUrl: "./message-input.html",
   changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrl: './message-input.css',
+  styleUrl: "./message-input.css",
 })
 export class MessageInput implements OnChanges {
-  private readonly storageKey = 'bibot-selected-documents';
+  private readonly storageKey = "bibot-selected-documents";
 
   docLabelsService = inject(DocLabelsService);
   sttService = inject(SttService);
-
+  toastService = inject(ToastService);
   micIcon = faMicrophone;
   stopIcon = faStop;
 
-  msg = '';
+  msg = "";
   useTheseDocs: string[] = [];
 
   @Input() availableDocs: string[] = [];
@@ -43,7 +43,7 @@ export class MessageInput implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
-      changes['availableDocs'] &&
+      changes["availableDocs"] &&
       this.availableDocs.length > 0 &&
       this.useTheseDocs.length === 0
     ) {
@@ -76,10 +76,10 @@ export class MessageInput implements OnChanges {
     }
 
     return (
-      (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
-      (trimmed.startsWith('*') && trimmed.endsWith('*')) ||
-      (trimmed.startsWith('(') && trimmed.endsWith(')')) ||
-      (trimmed.startsWith('{') && trimmed.endsWith('}'))
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("*") && trimmed.endsWith("*")) ||
+      (trimmed.startsWith("(") && trimmed.endsWith(")")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"))
     );
   }
 
@@ -88,13 +88,13 @@ export class MessageInput implements OnChanges {
       let text = await this.sttService.stopRecording();
 
       if (this.isInvalidTranscription(text)) {
-        this.msg = 'Non ti ho sentito, riprova';
+        this.toastService.showToast("Non ti ho sentito, riprova.");
         return;
       }
 
       this.msg = this.msg ? `${this.msg} ${text}` : text;
     } catch (error) {
-      console.error('Errore durante la trascrizione:', error);
+      console.error("Errore durante la trascrizione:", error);
     }
   }
 
@@ -104,7 +104,7 @@ export class MessageInput implements OnChanges {
       categories: this.getSelectedDocs(),
     });
 
-    this.msg = '';
+    this.msg = "";
   }
 
   getDocLabel(doc: string): string {
@@ -122,7 +122,7 @@ export class MessageInput implements OnChanges {
   }
 
   toggleDoc(doc: string): void {
-    if (doc === 'publications') {
+    if (doc === "publications") {
       this.togglePublications();
       return;
     }
@@ -139,8 +139,8 @@ export class MessageInput implements OnChanges {
 
       // Removing a publication subcategory means that
       // publications is no longer fully selected.
-      if (doc !== 'bible') {
-        newSelection = newSelection.filter((category) => category !== 'publications');
+      if (doc !== "bible") {
+        newSelection = newSelection.filter((category) => category !== "publications");
       }
 
       // If removing the subcategory also removed the last
@@ -161,10 +161,10 @@ export class MessageInput implements OnChanges {
 
     // If all publication subcategories are selected,
     // automatically select the publications parent.
-    if (doc !== 'bible' && this.areAllPublicationCategoriesSelected(newSelection)) {
+    if (doc !== "bible" && this.areAllPublicationCategoriesSelected(newSelection)) {
       newSelection = [
-        ...newSelection.filter((category) => category !== 'publications'),
-        'publications',
+        ...newSelection.filter((category) => category !== "publications"),
+        "publications",
       ];
     }
 
@@ -174,11 +174,11 @@ export class MessageInput implements OnChanges {
   }
 
   isPublicationsLocked(): boolean {
-    return this.useTheseDocs.includes('publications') && !this.useTheseDocs.includes('bible');
+    return this.useTheseDocs.includes("publications") && !this.useTheseDocs.includes("bible");
   }
 
   private togglePublications(): void {
-    const publicationsSelected = this.useTheseDocs.includes('publications');
+    const publicationsSelected = this.useTheseDocs.includes("publications");
 
     if (publicationsSelected) {
       // Publications is the only selected document group.
@@ -187,7 +187,7 @@ export class MessageInput implements OnChanges {
         return;
       }
 
-      this.useTheseDocs = this.useTheseDocs.filter((category) => category === 'bible');
+      this.useTheseDocs = this.useTheseDocs.filter((category) => category === "bible");
 
       this.saveDocumentPreferences();
 
@@ -197,8 +197,8 @@ export class MessageInput implements OnChanges {
     // Selecting Publications selects the parent
     // and all publication subcategories.
     this.useTheseDocs = [
-      ...this.useTheseDocs.filter((category) => category === 'bible'),
-      'publications',
+      ...this.useTheseDocs.filter((category) => category === "bible"),
+      "publications",
       ...this.getPublicationCategories(),
     ];
 
@@ -207,7 +207,7 @@ export class MessageInput implements OnChanges {
 
   private getPublicationCategories(): string[] {
     return this.availableDocs.filter(
-      (category) => category !== 'bible' && category !== 'publications',
+      (category) => category !== "bible" && category !== "publications",
     );
   }
 
@@ -230,7 +230,7 @@ export class MessageInput implements OnChanges {
         if (Array.isArray(savedCategories)) {
           const validCategories = savedCategories.filter(
             (category): category is string =>
-              typeof category === 'string' && this.availableDocs.includes(category),
+              typeof category === "string" && this.availableDocs.includes(category),
           );
 
           if (validCategories.length > 0) {
