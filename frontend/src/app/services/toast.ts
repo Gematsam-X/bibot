@@ -10,10 +10,7 @@ export class ToastService {
   showToast(message: string, duration?: number): void {
     this.removeToast();
 
-    const calculatedDuration = Math.min(
-      Math.max(1500 + message.length * 45, 2000),
-      6000
-    );
+    const calculatedDuration = Math.min(Math.max(1500 + message.length * 45, 2000), 6000);
 
     const toastDuration = duration ?? calculatedDuration;
 

@@ -12,9 +12,9 @@ import { marked } from "marked";
 
 import { Message } from "../chat/chat";
 
-import { faCopy, faShare, faRedo, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faRedo, faShare } from "@fortawesome/free-solid-svg-icons";
 
-import { faWhatsapp, faTelegram } from "@fortawesome/free-brands-svg-icons";
+import { faTelegram, faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";

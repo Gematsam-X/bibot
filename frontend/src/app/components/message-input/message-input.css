@@ -1,5 +1,6 @@
 :host {
   display: block;
+
   width: 100%;
 }
 
@@ -9,6 +10,7 @@
   gap: var(--spacing-sm);
 
   width: 100%;
+
   padding: var(--spacing-sm);
 
   box-sizing: border-box;
@@ -16,12 +18,13 @@
 
 /* ─────────────────────────────
    MESSAGE INPUT
-   ───────────────────────────── */
+───────────────────────────── */
 
-input[type='text'] {
+input[type="text"] {
   flex: 1;
 
   min-width: 0;
+
   height: 52px;
 
   padding: 0 var(--spacing-lg);
@@ -45,15 +48,15 @@ input[type='text'] {
     box-shadow var(--transition-normal) var(--ease-standard);
 }
 
-input[type='text']::placeholder {
+input[type="text"]::placeholder {
   color: var(--color-text-muted);
 }
 
-input[type='text']:hover {
+input[type="text"]:hover {
   background: var(--color-surface-hover);
 }
 
-input[type='text']:focus {
+input[type="text"]:focus {
   border-color: var(--color-accent);
 
   background: var(--color-surface);
@@ -62,8 +65,147 @@ input[type='text']:focus {
 }
 
 /* ─────────────────────────────
+   RECORDING CONTROLS
+───────────────────────────── */
+
+.recording-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+
+  flex-shrink: 0;
+}
+
+.microphone-button,
+.cancel-recording-button,
+.stop-recording-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 52px;
+
+  padding: 0;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    background-color var(--transition-normal) var(--ease-standard),
+    border-color var(--transition-normal) var(--ease-standard),
+    color var(--transition-normal) var(--ease-standard),
+    box-shadow var(--transition-normal) var(--ease-standard),
+    transform var(--transition-fast) var(--ease-standard);
+}
+
+.microphone-button:hover,
+.cancel-recording-button:hover,
+.stop-recording-button:hover {
+  background: var(--color-surface-hover);
+
+  color: var(--color-text-primary);
+
+  border-color: var(--color-border);
+
+  box-shadow: var(--shadow-sm);
+
+  transform: translateY(-1px);
+}
+
+.microphone-button:active,
+.cancel-recording-button:active,
+.stop-recording-button:active {
+  transform: scale(0.97);
+}
+
+.microphone-button:disabled {
+  opacity: 0.7;
+
+  cursor: default;
+
+  transform: none;
+}
+
+.microphone-button:focus-visible,
+.cancel-recording-button:focus-visible,
+.stop-recording-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* ─────────────────────────────
+   CANCEL RECORDING
+───────────────────────────── */
+
+.cancel-recording-button {
+  color: var(--color-text-muted);
+}
+
+/* ─────────────────────────────
+   STOP RECORDING
+───────────────────────────── */
+
+.stop-recording-button {
+  background: var(--color-accent);
+
+  color: var(--color-text-primary);
+}
+
+.stop-recording-button:hover {
+  background: var(--color-accent-hover);
+}
+
+/* ─────────────────────────────
+   TRANSCRIPTION LOADING
+───────────────────────────── */
+
+.transcribing-icon {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 1.4em;
+  height: 1.4em;
+}
+
+.transcribing-icon::before {
+  content: "";
+
+  position: absolute;
+
+  inset: -4px;
+
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-right-color: currentColor;
+
+  border-radius: 50%;
+
+  animation: stt-spin 0.8s linear infinite;
+}
+
+@keyframes stt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─────────────────────────────
    DOCUMENT DROPDOWN
-   ───────────────────────────── */
+───────────────────────────── */
 
 .docs-dropdown {
   position: relative;
@@ -102,6 +244,7 @@ input[type='text']:focus {
 
 .docs-button:hover {
   background: var(--color-surface-hover);
+
   color: var(--color-text-primary);
 
   border-color: var(--color-border);
@@ -134,7 +277,7 @@ input[type='text']:focus {
 
 /* ─────────────────────────────
    DOCUMENT MENU
-   ───────────────────────────── */
+───────────────────────────── */
 
 .docs-menu {
   position: absolute;
@@ -165,9 +308,61 @@ input[type='text']:focus {
   animation: menu-in var(--transition-fast) var(--ease-standard);
 }
 
+@keyframes menu-in {
+  from {
+    opacity: 0;
+
+    transform: translateY(4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─────────────────────────────
+   SELECT ALL
+───────────────────────────── */
+
+.select-all-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+
+  margin-bottom: var(--spacing-xs);
+
+  padding: var(--spacing-sm) var(--spacing-md);
+
+  border: none;
+  border-radius: var(--radius-md);
+
+  background: transparent;
+  color: var(--color-accent);
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-fast) var(--ease-standard),
+    color var(--transition-fast) var(--ease-standard);
+}
+
+.select-all-button:hover {
+  background: var(--color-surface-hover);
+
+  color: var(--color-text-primary);
+}
+
 /* ─────────────────────────────
    DOCUMENT OPTION
-   ───────────────────────────── */
+───────────────────────────── */
 
 .doc-option {
   display: flex;
@@ -200,9 +395,9 @@ input[type='text']:focus {
 
 /* ─────────────────────────────
    CHECKBOX
-   ───────────────────────────── */
+───────────────────────────── */
 
-.doc-option input[type='checkbox'] {
+.doc-option input[type="checkbox"] {
   appearance: none;
 
   flex-shrink: 0;
@@ -225,11 +420,11 @@ input[type='text']:focus {
     box-shadow var(--transition-fast) var(--ease-standard);
 }
 
-.doc-option input[type='checkbox']:hover {
+.doc-option input[type="checkbox"]:hover {
   border-color: var(--color-accent);
 }
 
-.doc-option input[type='checkbox']:checked {
+.doc-option input[type="checkbox"]:checked {
   border-color: var(--color-accent);
 
   background: var(--color-accent);
@@ -237,8 +432,8 @@ input[type='text']:focus {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 
-.doc-option input[type='checkbox']:checked::after {
-  content: '';
+.doc-option input[type="checkbox"]:checked::after {
+  content: "";
 
   display: block;
 
@@ -254,10 +449,92 @@ input[type='text']:focus {
 }
 
 /* ─────────────────────────────
-   SEND BUTTON
-   ───────────────────────────── */
+   DOCUMENT HIERARCHY
+───────────────────────────── */
 
-.input-container > button {
+.doc-parent {
+  margin-bottom: var(--spacing-xs);
+
+  color: var(--color-text-primary);
+
+  font-weight: 600;
+}
+
+.doc-parent span {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.doc-parent span::after {
+  content: "tutte";
+
+  padding: 2px 6px;
+
+  border-radius: var(--radius-pill);
+
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+/* ─────────────────────────────
+   PUBLICATION SUBCATEGORIES
+───────────────────────────── */
+
+.doc-child {
+  position: relative;
+
+  margin-left: var(--spacing-md);
+
+  padding-left: var(--spacing-lg);
+
+  color: var(--color-text-secondary);
+}
+
+.doc-child::before {
+  content: "";
+
+  position: absolute;
+
+  left: 8px;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  background: var(--color-border);
+}
+
+.doc-child:hover {
+  color: var(--color-text-primary);
+}
+
+/* ─────────────────────────────
+   BIBLE
+───────────────────────────── */
+
+.doc-standalone {
+  margin-top: var(--spacing-xs);
+
+  padding-top: var(--spacing-md);
+
+  border-top: 1px solid var(--color-border);
+
+  border-radius: 0;
+
+  color: var(--color-text-primary);
+
+  font-weight: 600;
+}
+
+/* ─────────────────────────────
+   SEND BUTTON
+───────────────────────────── */
+
+.send-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,7 +565,7 @@ input[type='text']:focus {
     transform var(--transition-fast) var(--ease-standard);
 }
 
-.input-container > button:hover {
+.send-button:hover {
   background: var(--color-accent-hover);
 
   box-shadow: var(--shadow-md);
@@ -296,174 +573,27 @@ input[type='text']:focus {
   transform: translateY(-1px);
 }
 
-.input-container > button:active {
+.send-button:active {
   transform: scale(0.97);
 }
 
-.input-container > button:focus-visible {
+.send-button:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
 /* ─────────────────────────────
-   ANIMATIONS
-   ───────────────────────────── */
-
-@keyframes menu-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ─────────────────────────────
-   DOCUMENT HIERARCHY
-   ───────────────────────────── */
-
-.doc-parent {
-  margin-bottom: var(--spacing-xs);
-
-  color: var(--color-text-primary);
-
-  font-weight: 600;
-}
-
-.doc-parent span {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.doc-parent span::after {
-  content: 'tutte';
-
-  padding: 2px 6px;
-
-  border-radius: var(--radius-pill);
-
-  background: var(--color-surface-hover);
-  color: var(--color-text-muted);
-
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-}
-
-/* Publication subcategories */
-
-.doc-child {
-  position: relative;
-
-  margin-left: var(--spacing-md);
-  padding-left: var(--spacing-lg);
-
-  color: var(--color-text-secondary);
-}
-
-.doc-child::before {
-  content: '';
-
-  position: absolute;
-
-  left: 8px;
-  top: 0;
-  bottom: 0;
-
-  width: 1px;
-
-  background: var(--color-border);
-}
-
-.doc-child:hover {
-  color: var(--color-text-primary);
-}
-
-/* Bible is standalone */
-
-.doc-standalone {
-  margin-top: var(--spacing-xs);
-
-  border-top: 1px solid var(--color-border);
-  border-radius: 0;
-
-  padding-top: var(--spacing-md);
-  color: var(--color-text-primary);
-  font-weight: 600;
-}
-
-.select-all-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-
-  margin-bottom: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-
-  border: none;
-  border-radius: var(--radius-md);
-
-  background: transparent;
-  color: var(--color-accent);
-
-  font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background-color var(--transition-fast) var(--ease-standard),
-    color var(--transition-fast) var(--ease-standard);
-}
-
-.select-all-button:hover {
-  background: var(--color-surface-hover);
-  color: var(--color-text-primary);
-}
-
-.transcribing-icon {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.4em;
-  height: 1.4em;
-}
-
-.transcribing-icon::before {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border: 2px solid transparent;
-  border-top-color: currentColor;
-  border-right-color: currentColor;
-  border-radius: 50%;
-  animation: stt-spin 0.8s linear infinite;
-}
-
-@keyframes stt-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ─────────────────────────────
    MOBILE
-   ───────────────────────────── */
+───────────────────────────── */
 
 @media (max-width: 600px) {
   .input-container {
     gap: var(--spacing-xs);
+
     padding: var(--spacing-xs);
   }
 
-  input[type='text'] {
+  input[type="text"] {
     height: 48px;
 
     padding: 0 var(--spacing-md);
@@ -471,6 +601,19 @@ input[type='text']:focus {
     border-radius: var(--radius-lg);
 
     font-size: var(--font-size-sm);
+  }
+
+  .microphone-button,
+  .cancel-recording-button,
+  .stop-recording-button {
+    width: 48px;
+    height: 48px;
+
+    border-radius: var(--radius-md);
+  }
+
+  .recording-controls {
+    gap: 2px;
   }
 
   .docs-button {
@@ -489,7 +632,7 @@ input[type='text']:focus {
     max-width: calc(100vw - var(--spacing-lg));
   }
 
-  .input-container > button {
+  .send-button {
     height: 48px;
 
     padding: 0 var(--spacing-lg);

@@ -5,17 +5,44 @@
     placeholder="Scrivi un messaggio..."
     (keydown.enter)="triggerSendMessage()"
   />
-  <button type="button" (click)="toggleRecording()" [disabled]="sttService.isTranscribing()">
-    @if (sttService.isRecording()) {
-      <fa-icon [icon]="stopIcon"></fa-icon>
-    } @else if (sttService.isTranscribing()) {
-      <span class="transcribing-icon">
+
+  @if (sttService.isRecording()) {
+    <div class="recording-controls">
+      <button
+        type="button"
+        class="cancel-recording-button"
+        (click)="cancelRecording()"
+        title="Annulla registrazione"
+      >
+        <fa-icon [icon]="cancelIcon"></fa-icon>
+      </button>
+
+      <button
+        type="button"
+        class="stop-recording-button"
+        (click)="toggleRecording()"
+        title="Termina registrazione"
+      >
+        <fa-icon [icon]="stopIcon"></fa-icon>
+      </button>
+    </div>
+  } @else {
+    <button
+      type="button"
+      class="microphone-button"
+      (click)="toggleRecording()"
+      [disabled]="sttService.isTranscribing()"
+      title="Registra messaggio"
+    >
+      @if (sttService.isTranscribing()) {
+        <span class="transcribing-icon">
+          <fa-icon [icon]="micIcon"></fa-icon>
+        </span>
+      } @else {
         <fa-icon [icon]="micIcon"></fa-icon>
-      </span>
-    } @else {
-      <fa-icon [icon]="micIcon"></fa-icon>
-    }
-  </button>
+      }
+    </button>
+  }
 
   <div class="docs-dropdown">
     <button type="button" class="docs-button" (click)="docsOpen = !docsOpen">
@@ -29,7 +56,8 @@
         <button type="button" class="select-all-button" (click)="selectAllDocs()">
           Seleziona tutto
         </button>
-        @if (availableDocs.includes('bible')) {
+
+        @if (availableDocs.includes("bible")) {
           <label class="doc-option doc-standalone">
             <input
               type="checkbox"
@@ -38,10 +66,11 @@
               (change)="toggleDoc('bible')"
             />
 
-            <span>{{ getDocLabel('bible') }}</span>
+            <span>{{ getDocLabel("bible") }}</span>
           </label>
         }
-        @if (availableDocs.includes('publications')) {
+
+        @if (availableDocs.includes("publications")) {
           <label class="doc-option doc-parent">
             <input
               type="checkbox"
@@ -50,12 +79,12 @@
               (change)="toggleDoc('publications')"
             />
 
-            <span>{{ getDocLabel('publications') }}</span>
+            <span>{{ getDocLabel("publications") }}</span>
           </label>
 
           <div class="doc-children">
             @for (doc of availableDocs; track doc) {
-              @if (doc !== 'publications' && doc !== 'bible') {
+              @if (doc !== "publications" && doc !== "bible") {
                 <label class="doc-option doc-child">
                   <input
                     type="checkbox"
@@ -74,5 +103,5 @@
     }
   </div>
 
-  <button (click)="triggerSendMessage()">Invia</button>
+  <button type="button" class="send-button" (click)="triggerSendMessage()">Invia</button>
 </div>

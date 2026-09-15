@@ -1,29 +1,26 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
 export type ChatEvent =
   | {
-      type: 'status';
+      type: "status";
       status: string;
     }
   | {
-      type: 'content';
+      type: "content";
       content: string;
     };
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class ChatService {
-  private apiUrl = '/api';
+  private apiUrl = "/api";
 
-  async *sendMessage(
-    message: string,
-    categories: string[],
-  ): AsyncGenerator<ChatEvent> {
+  async *sendMessage(message: string, categories: string[]): AsyncGenerator<ChatEvent> {
     const response = await fetch(`${this.apiUrl}/chat`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ message, categories }),
     });
@@ -33,13 +30,13 @@ export class ChatService {
     }
 
     if (!response.body) {
-      throw new Error('Il server non supporta lo streaming');
+      throw new Error("Il server non supporta lo streaming");
     }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
 
-    let buffer = '';
+    let buffer = "";
 
     try {
       while (true) {
@@ -51,10 +48,10 @@ export class ChatService {
 
         buffer += decoder.decode(value, { stream: true });
 
-        const lines = buffer.split('\n');
+        const lines = buffer.split("\n");
 
         // L'ultima parte potrebbe essere un JSON incompleto.
-        buffer = lines.pop() ?? '';
+        buffer = lines.pop() ?? "";
 
         for (const line of lines) {
           if (!line.trim()) {
@@ -80,9 +77,9 @@ export class ChatService {
 
   async getAvailableDocs(): Promise<string[]> {
     const response = await fetch(`${this.apiUrl}/available-docs`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 

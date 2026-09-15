@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
 /**
  * Contains the labels for the documents used in the application.
@@ -6,16 +6,16 @@ import { Injectable } from '@angular/core';
  * If a value isn't found in the docLabels object, the original document name will be returned.
  */
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class DocLabelsService {
   private readonly docLabels: Record<string, string> = {
-    bible: 'Bibbia',
-    publications: 'Pubblicazioni',
-    pers: 'Perspicacia',
-    cour: 'Cammina coraggiosamente con Dio',
-    evorcr: 'Evoluzione o creazione?',
-    life4ever: 'Puoi vivere felice per sempre',
+    bible: "Bibbia",
+    publications: "Pubblicazioni",
+    pers: "Perspicacia",
+    cour: "Cammina coraggiosamente con Dio",
+    evorcr: "Evoluzione o creazione?",
+    life4ever: "Puoi vivere felice per sempre",
   };
 
   getLabel(doc: string): string {
